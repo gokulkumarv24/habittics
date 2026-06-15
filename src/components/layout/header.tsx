@@ -59,7 +59,7 @@ export function Header() {
           <span className="hidden md:block text-sm font-medium">
             {session?.user?.name || "User"}
           </span>
-          <Button variant="ghost" size="icon" onClick={() => signOut({ callbackUrl: "/login" })}>
+          <Button variant="ghost" size="icon" onClick={() => signOut({ callbackUrl: "/" })}>
             <LogOut className="w-4 h-4" />
           </Button>
         </div>
