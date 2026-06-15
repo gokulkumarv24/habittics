@@ -4,6 +4,10 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { inferRouterOutputs } from "@trpc/server";
+import type { AppRouter } from "@/server/trpc/router";
+
+type HabitWithRelations = inferRouterOutputs<AppRouter>["habit"]["getAll"][number];
 
 export function TodayHabits() {
   const { data: habits, isLoading } = trpc.habit.getAll.useQuery();
@@ -41,7 +45,7 @@ export function TodayHabits() {
       </CardHeader>
       <CardContent className="space-y-2">
         {habits && habits.length > 0 ? (
-          habits.map((habit) => {
+          habits.map((habit: HabitWithRelations) => {
             const isCompleted = habit.logs.length > 0 && habit.logs[0].completed;
             return (
               <button
