@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/server/db/client";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const diagnostics: Record<string, unknown> = {
     timestamp: new Date().toISOString(),
     env: {
@@ -12,6 +12,9 @@ export async function GET() {
       databaseUrlPrefix: process.env.DATABASE_URL?.substring(0, 30) + "...",
       databaseUrlHasChannelBinding: process.env.DATABASE_URL?.includes("channel_binding") ?? false,
     },
+    cookies: Object.fromEntries(
+      [...req.cookies.getAll()].map(c => [c.name, c.value.substring(0, 20) + "..."])
+    ),
   };
 
   try {

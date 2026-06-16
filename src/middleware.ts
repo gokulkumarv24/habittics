@@ -20,7 +20,11 @@ export async function middleware(req: NextRequest) {
   try {
     const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
     if (secret) {
-      const token = await getToken({ req, secret });
+      // NextAuth v5 uses "authjs.session-token" cookie name
+      // Try with default first, then with explicit cookie name
+      const token = await getToken({ req, secret, cookieName: "__Secure-authjs.session-token" })
+        || await getToken({ req, secret, cookieName: "authjs.session-token" })
+        || await getToken({ req, secret });
       isLoggedIn = !!token;
     }
   } catch {
