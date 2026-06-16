@@ -12,6 +12,7 @@ import {
   TrendingUp,
   Flame,
   CalendarDays,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,27 +31,45 @@ const goalSubNav = [
   { name: "Yearly", href: "/goals/yearly", icon: Flame },
 ];
 
-export function Sidebar() {
+export function Sidebar({ open, onClose }: { open?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:border-r lg:bg-card lg:min-h-screen">
-      {/* Logo */}
-      <div className="flex items-center gap-2 px-6 py-5 border-b">
-        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-          <Flame className="w-5 h-5 text-white" />
+    <>
+      {/* Mobile overlay */}
+      {open && (
+        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={onClose} />
+      )}
+
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex flex-col w-64 border-r bg-card min-h-screen transition-transform duration-200 lg:static lg:translate-x-0",
+          open ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+          "lg:flex"
+        )}
+      >
+        {/* Logo */}
+        <div className="flex items-center justify-between px-6 py-5 border-b">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <Flame className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold tracking-tight">HabitFlow</span>
+          </div>
+          <button onClick={onClose} className="lg:hidden p-1 rounded-md hover:bg-accent">
+            <X className="w-5 h-5" />
+          </button>
         </div>
-        <span className="text-xl font-bold tracking-tight">HabitFlow</span>
-      </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navigation.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <div key={item.name}>
               <Link
                 href={item.href}
+                onClick={onClose}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                   isActive
@@ -94,5 +113,6 @@ export function Sidebar() {
         </p>
       </div>
     </aside>
+    </>
   );
 }

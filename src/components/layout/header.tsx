@@ -5,14 +5,14 @@ import { Bell, Moon, Sun, LogOut, User, Menu } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 
-export function Header() {
+export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const { data: session } = useSession();
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between h-16 px-4 lg:px-6 border-b bg-card/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 lg:px-6 border-b bg-card/80 backdrop-blur-sm">
       {/* Mobile menu button */}
-      <Button variant="ghost" size="icon" className="lg:hidden">
+      <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenuClick}>
         <Menu className="w-5 h-5" />
       </Button>
 
