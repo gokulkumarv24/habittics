@@ -23,11 +23,16 @@ export default function LoginPage() {
     setError("");
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+
       const result = await signIn("credentials", {
         email,
         password,
         redirect: false,
       });
+
+      clearTimeout(timeout);
 
       if (result?.error) {
         setError("Invalid email or password");
@@ -37,7 +42,7 @@ export default function LoginPage() {
         router.push("/dashboard");
       }
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError("Login timed out. Please try again.");
       setLoading(false);
     }
   };
