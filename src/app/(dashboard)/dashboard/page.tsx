@@ -16,7 +16,7 @@ export default function DashboardPage() {
   const firstName = session?.user?.name?.split(" ")[0] || "there";
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-stagger">
       {/* Greeting */}
       <div>
         <p className="text-sm font-medium text-muted-foreground">

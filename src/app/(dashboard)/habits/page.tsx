@@ -23,7 +23,7 @@ export default function HabitsPage() {
   });
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-stagger">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Habits</h1>
@@ -40,7 +40,7 @@ export default function HabitsPage() {
       {isLoading ? (
         <div className="grid gap-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-16 bg-muted rounded-lg animate-pulse" />
+            <div key={i} className="h-16 shimmer rounded-lg" />
           ))}
         </div>
       ) : habits && habits.length > 0 ? (
@@ -57,10 +57,10 @@ export default function HabitsPage() {
                       disabled={toggleMutation.isPending}
                       aria-pressed={isCompleted ? "true" : "false"}
                       aria-label={isCompleted ? `Mark "${habit.title}" as not done` : `Mark "${habit.title}" as done`}
-                      className="flex-shrink-0 flex items-center justify-center h-11 w-11 -my-2 rounded-full hover:bg-muted/60 transition-colors disabled:opacity-50"
+                      className="flex-shrink-0 flex items-center justify-center h-11 w-11 -my-2 rounded-full hover:bg-muted/60 transition-all active:scale-90 disabled:opacity-50"
                     >
                       {isCompleted ? (
-                        <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                        <CheckCircle2 className="w-6 h-6 text-emerald-500 animate-pop" />
                       ) : (
                         <Circle className="w-6 h-6 text-muted-foreground hover:text-primary transition-colors" />
                       )}

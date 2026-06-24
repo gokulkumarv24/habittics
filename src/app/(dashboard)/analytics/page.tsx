@@ -17,7 +17,7 @@ export default function AnalyticsPage() {
   const { data: categories } = trpc.category.getAll.useQuery();
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-stagger">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
         <p className="text-muted-foreground">Insights into your habits and goal progress.</p>

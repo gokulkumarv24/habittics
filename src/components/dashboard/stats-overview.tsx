@@ -11,9 +11,9 @@ export function StatsOverview() {
     return (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
-          <Card key={i} className="animate-pulse">
+          <Card key={i}>
             <CardContent className="p-4">
-              <div className="h-16 bg-muted rounded" />
+              <div className="h-16 shimmer rounded-lg" />
             </CardContent>
           </Card>
         ))}

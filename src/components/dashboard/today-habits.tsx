@@ -31,7 +31,7 @@ export function TodayHabits() {
         </CardHeader>
         <CardContent className="space-y-3">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-12 bg-muted rounded-lg animate-pulse" />
+            <div key={i} className="h-12 shimmer rounded-lg" />
           ))}
         </CardContent>
       </Card>
@@ -72,14 +72,14 @@ export function TodayHabits() {
                 aria-pressed={isCompleted ? "true" : "false"}
                 aria-label={isCompleted ? `Mark "${habit.title}" as not done` : `Mark "${habit.title}" as done`}
                 className={cn(
-                  "w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition-all hover:shadow-sm disabled:opacity-60",
+                  "w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition-all hover:shadow-sm active:scale-[0.99] disabled:opacity-60",
                   isCompleted
                     ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800"
                     : "hover:bg-muted/50"
                 )}
               >
                 {isCompleted ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 animate-pop" />
                 ) : (
                   <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                 )}

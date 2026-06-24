@@ -25,7 +25,10 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-mesh">
-        <div className="container mx-auto px-4 py-24 text-center">
+        {/* Floating ambient glows */}
+        <div className="pointer-events-none absolute -top-20 -left-10 h-72 w-72 rounded-full bg-primary/20 blur-3xl animate-float" />
+        <div className="pointer-events-none absolute top-10 -right-10 h-72 w-72 rounded-full bg-violet-500/20 blur-3xl animate-float" style={{ animationDelay: "2s" }} />
+        <div className="relative container mx-auto px-4 py-24 text-center">
           <div className="inline-flex items-center gap-2 mb-6 px-3 py-1 rounded-full border bg-card/60 backdrop-blur-sm text-sm font-medium text-muted-foreground">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
@@ -35,7 +38,7 @@ export default function LandingPage() {
           </div>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight max-w-3xl mx-auto leading-[1.1]">
             Build Better Habits.{" "}
-            <span className="text-gradient">Achieve Your Goals.</span>
+            <span className="text-gradient-animate">Achieve Your Goals.</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Track daily habits, set weekly/monthly/yearly goals, and visualize your progress
