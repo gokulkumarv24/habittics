@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap");
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -12,30 +10,30 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 238.7 83.5% 66.7%;
+    --primary: 217 91.2% 59.8%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 215.4 18% 40%;
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 238.7 83.5% 66.7%;
+    --ring: 217 91.2% 59.8%;
     --radius: 0.75rem;
   }
 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
-    --primary: 238.7 83.5% 66.7%;
+    --primary: 217 91.2% 59.8%;
     --primary-foreground: 210 40% 98%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -47,7 +45,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 238.7 83.5% 66.7%;
+    --ring: 217 91.2% 59.8%;
   }
 }
 
@@ -78,6 +76,31 @@
   .animate-fade-in {
     animation: fadeIn 0.3s ease-out;
   }
+
+  /* Brand gradient text */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary via-indigo-500 to-violet-500 bg-clip-text text-transparent;
+  }
+
+  /* Subtle elevated panel that lifts on hover */
+  .card-lift {
+    @apply transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/5;
+  }
+
+  /* Decorative mesh background for hero/auth surfaces */
+  .bg-mesh {
+    background-image:
+      radial-gradient(at 18% 0%, hsl(217 91% 60% / 0.18) 0px, transparent 50%),
+      radial-gradient(at 82% 12%, hsl(258 90% 66% / 0.16) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, hsl(190 95% 55% / 0.12) 0px, transparent 50%);
+  }
+}
+
+@layer components {
+  /* Brand logo mark with gradient + glow */
+  .logo-mark {
+    @apply bg-gradient-to-br from-primary to-violet-500 shadow-lg shadow-primary/25;
+  }
 }
 
 @keyframes fadeIn {
@@ -88,5 +111,17 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

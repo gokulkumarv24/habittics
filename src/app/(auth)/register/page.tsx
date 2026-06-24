@@ -48,11 +48,11 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-mesh bg-gradient-to-br from-background to-muted p-4">
+      <Card className="w-full max-w-md shadow-xl shadow-primary/5">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-2">
-            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+            <div className="logo-mark w-12 h-12 rounded-xl flex items-center justify-center">
               <Flame className="w-7 h-7 text-white" />
             </div>
           </div>

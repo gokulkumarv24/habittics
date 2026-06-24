@@ -26,12 +26,15 @@ export function BottomNav() {
               key={item.name}
               href={item.href}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg transition-colors min-w-[56px]",
+                "relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg transition-colors min-w-[56px]",
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground active:text-foreground"
               )}
             >
+              {isActive && (
+                <span className="absolute -top-px h-0.5 w-8 rounded-full bg-gradient-to-r from-primary to-violet-500" />
+              )}
               <item.icon className={cn("w-5 h-5", isActive && "stroke-[2.5]")} />
               <span className="text-[10px] font-medium">{item.name}</span>
             </Link>

@@ -46,15 +46,18 @@ export default function HabitsPage() {
       ) : habits && habits.length > 0 ? (
         <div className="grid gap-3">
           {habits.map((habit) => {
-            const isCompleted = habit.logs.length > 0 && habit.logs[0].completed;
+            const isCompleted = Boolean(habit.logs.length > 0 && habit.logs[0].completed);
             return (
-              <Card key={habit.id} className="hover:shadow-md transition-shadow">
+              <Card key={habit.id} className="card-lift">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
                     {/* Check button */}
                     <button
                       onClick={() => toggleMutation.mutate({ habitId: habit.id, date: new Date() })}
-                      className="flex-shrink-0"
+                      disabled={toggleMutation.isPending}
+                      aria-pressed={isCompleted ? "true" : "false"}
+                      aria-label={isCompleted ? `Mark "${habit.title}" as not done` : `Mark "${habit.title}" as done`}
+                      className="flex-shrink-0 flex items-center justify-center h-11 w-11 -my-2 rounded-full hover:bg-muted/60 transition-colors disabled:opacity-50"
                     >
                       {isCompleted ? (
                         <CheckCircle2 className="w-6 h-6 text-emerald-500" />
@@ -109,9 +112,12 @@ export default function HabitsPage() {
 
                     {/* Archive button */}
                     <button
+                      type="button"
                       onClick={() => deleteMutation.mutate({ id: habit.id })}
-                      className="text-muted-foreground hover:text-destructive transition-colors"
+                      disabled={deleteMutation.isPending}
+                      className="flex-shrink-0 flex items-center justify-center h-11 w-11 -my-2 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
                       title="Archive habit"
+                      aria-label={`Archive "${habit.title}"`}
                     >
                       <Archive className="w-4 h-4" />
                     </button>

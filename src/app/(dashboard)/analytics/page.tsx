@@ -3,10 +3,9 @@
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { Flame } from "lucide-react";
 import { subDays } from "date-fns";
-
-const COLORS = ["#10b981", "#6366f1", "#f59e0b", "#3b82f6", "#ec4899", "#8b5cf6"];
 
 export default function AnalyticsPage() {
   const { data: weeklyStats } = trpc.analytics.getWeeklyStats.useQuery();
@@ -81,22 +80,27 @@ export default function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             {categories && categories.length > 0 ? (
-              <div className="space-y-3">
-                {categories.map((cat, i) => (
-                  <div key={cat.id}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">{cat.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {cat._count.habits} habits
-                      </span>
-                    </div>
-                    <Progress
-                      value={cat._count.habits > 0 ? Math.min(cat._count.habits * 20, 100) : 0}
-                      className="h-2"
-                    />
+              (() => {
+                const totalHabits = categories.reduce((sum, c) => sum + c._count.habits, 0);
+                return (
+                  <div className="space-y-3">
+                    {categories.map((cat) => {
+                      const share = totalHabits > 0 ? Math.round((cat._count.habits / totalHabits) * 100) : 0;
+                      return (
+                        <div key={cat.id}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium">{cat.name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {cat._count.habits} {cat._count.habits === 1 ? "habit" : "habits"} · {share}%
+                            </span>
+                          </div>
+                          <Progress value={share} className="h-2" />
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
+                );
+              })()
             ) : (
               <p className="text-sm text-muted-foreground text-center py-8">No categories yet</p>
             )}
@@ -116,7 +120,10 @@ export default function AnalyticsPage() {
                 <div key={streak.habitId} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                   <span className="text-lg font-bold text-muted-foreground w-6">#{i + 1}</span>
                   <span className="flex-1 font-medium">{streak.title}</span>
-                  <span className="font-mono font-bold text-orange-500">{streak.streak} 🔥</span>
+                  <span className="flex items-center gap-1 font-mono font-bold text-orange-500">
+                    {streak.streak}
+                    <Flame className="w-4 h-4" aria-hidden="true" />
+                  </span>
                 </div>
               ))}
             </div>
