@@ -2,6 +2,7 @@
 
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tilt } from "@/components/ui/tilt";
 import { CheckCircle2, Flame, TrendingUp, Target } from "lucide-react";
 
 export function StatsOverview() {
@@ -63,23 +64,24 @@ export function StatsOverview() {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {cards.map((card) => (
-        <Card
-          key={card.title}
-          className={`card-lift relative overflow-hidden before:content-[''] before:absolute before:-top-8 before:-right-8 before:h-24 before:w-24 before:rounded-full before:bg-gradient-to-br before:to-transparent before:blur-2xl ${card.glow}`}
-        >
-          <CardContent className="p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{card.title}</p>
-                <p className="text-3xl font-bold font-mono mt-1.5 tracking-tight">{card.value}</p>
-                <p className="text-xs text-muted-foreground mt-1">{card.subtitle}</p>
+        <Tilt key={card.title} className="rounded-lg">
+          <Card
+            className={`relative overflow-hidden hover:shadow-xl hover:shadow-primary/5 transition-shadow before:content-[''] before:absolute before:-top-8 before:-right-8 before:h-24 before:w-24 before:rounded-full before:bg-gradient-to-br before:to-transparent before:blur-2xl ${card.glow}`}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between" style={{ transform: "translateZ(40px)" }}>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{card.title}</p>
+                  <p className="text-3xl font-bold font-mono mt-1.5 tracking-tight">{card.value}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{card.subtitle}</p>
+                </div>
+                <div className={`p-2.5 rounded-xl bg-gradient-to-br ${card.tile} ring-1 ring-inset ring-white/10`}>
+                  <card.icon className={`w-5 h-5 ${card.color}`} />
+                </div>
               </div>
-              <div className={`p-2.5 rounded-xl bg-gradient-to-br ${card.tile} ring-1 ring-inset ring-white/10`}>
-                <card.icon className={`w-5 h-5 ${card.color}`} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Tilt>
       ))}
     </div>
   );

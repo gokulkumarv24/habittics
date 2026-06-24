@@ -120,6 +120,30 @@
     animation: shimmer 1.5s infinite;
   }
 
+  /* --- 3D primitives --- */
+  .perspective {
+    perspective: 1000px;
+  }
+  .perspective-sm {
+    perspective: 600px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  /* Continuous 3D coin flip */
+  .animate-spin-3d {
+    animation: spin3d 6s linear infinite;
+    transform-style: preserve-3d;
+  }
+  /* Floating card that hangs in 3D space */
+  .animate-float-3d {
+    animation: float3d 7s ease-in-out infinite;
+    transform-style: preserve-3d;
+  }
+
   /* Staggered entrance for direct children */
   .animate-stagger > * {
     opacity: 0;
@@ -178,6 +202,16 @@
   0% { background-position: 0% center; }
   50% { background-position: 100% center; }
   100% { background-position: 0% center; }
+}
+
+@keyframes spin3d {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+@keyframes float3d {
+  0%, 100% { transform: translateY(0) rotateX(7deg) rotateY(-14deg); }
+  50% { transform: translateY(-16px) rotateX(7deg) rotateY(-8deg); }
 }
 
 /* Respect users who prefer reduced motion */

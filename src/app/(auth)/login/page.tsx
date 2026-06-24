@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tilt } from "@/components/ui/tilt";
 import { Flame } from "lucide-react";
 import Link from "next/link";
 
@@ -49,7 +50,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-mesh bg-gradient-to-br from-background to-muted p-4">
-      <Card className="w-full max-w-md shadow-xl shadow-primary/5">
+      <Tilt max={4} scale={1} glare={false} className="w-full max-w-md rounded-lg">
+      <Card className="w-full shadow-xl shadow-primary/5">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-2">
             <div className="logo-mark w-12 h-12 rounded-xl flex items-center justify-center">
@@ -130,6 +132,7 @@ export default function LoginPage() {
           </p>
         </CardContent>
       </Card>
+      </Tilt>
     </div>
   );
 }
