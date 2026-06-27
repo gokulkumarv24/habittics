@@ -6,7 +6,7 @@ import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Flame, ArrowRight, Sparkles } from "lucide-react";
+import { Leaf, ArrowRight, Sprout } from "lucide-react";
 import Link from "next/link";
 
 export default function RegisterPage() {
@@ -48,16 +48,16 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex bg-background">
       {/* ── Left brand panel (desktop only) ── */}
-      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden bg-gradient-to-br from-violet-500/10 via-primary/8 to-background">
+      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden bg-gradient-to-br from-emerald-500/10 via-primary/8 to-background">
         {/* Ambient glows */}
-        <div className="pointer-events-none absolute -top-20 right-10 w-80 h-80 rounded-full bg-violet-500/15 blur-3xl" />
+        <div className="pointer-events-none absolute -top-20 right-10 w-80 h-80 rounded-full bg-emerald-500/15 blur-3xl" />
         <div className="pointer-events-none absolute bottom-20 -left-10 w-60 h-60 rounded-full bg-primary/12 blur-3xl" />
         <div className="pointer-events-none absolute inset-0 bg-dots opacity-30" />
 
         {/* Logo */}
         <div className="relative flex items-center gap-3">
           <div className="logo-mark w-10 h-10 rounded-xl flex items-center justify-center shadow-glow-sm">
-            <Flame className="w-5 h-5 text-white" />
+            <Leaf className="w-5 h-5 text-white" />
           </div>
           <span className="text-xl font-bold">HabitFlow</span>
         </div>
@@ -65,19 +65,19 @@ export default function RegisterPage() {
         {/* Brand copy */}
         <div className="relative space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-sm font-medium text-primary">
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sprout className="w-3.5 h-3.5" />
             Free forever for personal use
           </div>
 
           <div>
             <h2 className="text-3xl font-bold mb-3">
-              Your journey to{" "}
+              Your garden of{" "}
               <span className="text-gradient">better habits</span>{" "}
               starts here.
             </h2>
             <p className="text-muted-foreground leading-relaxed max-w-sm">
-              Join thousands of people who use HabitFlow to build consistency,
-              track their goals, and transform their daily routines.
+              Plant your first seed and watch it grow. Every day you show up,
+              your garden flourishes.
             </p>
           </div>
 
@@ -107,13 +107,13 @@ export default function RegisterPage() {
           {/* Mobile logo */}
           <div className="flex justify-center mb-8 lg:hidden">
             <div className="logo-mark w-12 h-12 rounded-2xl flex items-center justify-center shadow-glow">
-              <Flame className="w-6 h-6 text-white" />
+              <Leaf className="w-6 h-6 text-white" />
             </div>
           </div>
 
           <div className="mb-8">
             <h1 className="text-2xl font-bold mb-1">Create your account</h1>
-            <p className="text-muted-foreground text-sm">Start building better habits today — it&apos;s free</p>
+            <p className="text-muted-foreground text-sm">Plant your first seed — it&apos;s free</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

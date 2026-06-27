@@ -39,14 +39,9 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        success: {
-          DEFAULT: "#10b981",
-          foreground: "#ffffff",
-        },
-        warning: {
-          DEFAULT: "#f59e0b",
-          foreground: "#ffffff",
-        },
+        growth: "hsl(var(--growth))",
+        bloom: "hsl(var(--bloom))",
+        drought: "hsl(var(--drought))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -56,13 +51,14 @@ const config: Config = {
         "2xl": "calc(var(--radius) + 8px)",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "Plus Jakarta Sans", "sans-serif"],
+        sans: ["var(--font-sans)", "DM Sans", "sans-serif"],
+        display: ["var(--font-display)", "Instrument Serif", "serif"],
         mono: ["var(--font-mono)", "JetBrains Mono", "monospace"],
       },
       boxShadow: {
-        "glow-sm": "0 0 15px hsl(239 84% 67% / 0.15)",
-        "glow": "0 0 30px hsl(239 84% 67% / 0.2), 0 0 60px hsl(239 84% 67% / 0.08)",
-        "glow-lg": "0 0 50px hsl(239 84% 67% / 0.25), 0 0 100px hsl(239 84% 67% / 0.1)",
+        "glow-sm": "0 0 15px hsl(142 69% 58% / 0.15)",
+        "glow": "0 0 30px hsl(142 69% 58% / 0.2), 0 0 60px hsl(142 69% 58% / 0.08)",
+        "glow-lg": "0 0 50px hsl(142 69% 58% / 0.25), 0 0 100px hsl(142 69% 58% / 0.1)",
         "card": "0 1px 3px rgb(0 0 0 / 0.05), 0 4px 16px rgb(0 0 0 / 0.04)",
         "card-hover": "0 4px 24px rgb(0 0 0 / 0.08), 0 1px 4px rgb(0 0 0 / 0.04)",
         "float": "0 20px 60px -12px rgb(0 0 0 / 0.25)",

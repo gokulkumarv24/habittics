@@ -11,7 +11,7 @@ export function WeeklyChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Weekly Progress</CardTitle>
+          <CardTitle className="text-lg">Weekly Growth</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-48 bg-muted rounded animate-pulse" />
@@ -23,7 +23,7 @@ export function WeeklyChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Weekly Progress</CardTitle>
+        <CardTitle className="text-lg">Weekly Growth</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={200}>
@@ -36,7 +36,7 @@ export function WeeklyChart() {
                 border: "1px solid hsl(var(--border))",
                 background: "hsl(var(--card))",
               }}
-              formatter={(value: number) => [`${value}%`, "Completion"]}
+              formatter={(value: number) => [`${value}%`, "Growth"]}
             />
             <Bar
               dataKey="rate"

@@ -4,32 +4,33 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  CheckCircle2,
+  Sprout,
   Target,
   BarChart3,
   Settings,
   Calendar,
   TrendingUp,
-  Flame,
+  Flower2,
   CalendarDays,
   X,
   ChevronRight,
+  Leaf,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { name: "Dashboard",  href: "/dashboard",  icon: LayoutDashboard, color: "text-indigo-500",  bg: "bg-indigo-500/10" },
-  { name: "Habits",     href: "/habits",      icon: CheckCircle2,    color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  { name: "Planner",    href: "/planner",     icon: CalendarDays,    color: "text-sky-500",     bg: "bg-sky-500/10" },
-  { name: "Goals",      href: "/goals",       icon: Target,          color: "text-violet-500",  bg: "bg-violet-500/10" },
-  { name: "Analytics",  href: "/analytics",   icon: BarChart3,       color: "text-amber-500",   bg: "bg-amber-500/10" },
-  { name: "Settings",   href: "/settings",    icon: Settings,        color: "text-slate-500",   bg: "bg-slate-500/10" },
+  { name: "Garden",    href: "/dashboard",  icon: LayoutDashboard, color: "text-emerald-500",  bg: "bg-emerald-500/10" },
+  { name: "Habits",    href: "/habits",     icon: Sprout,          color: "text-green-500",    bg: "bg-green-500/10" },
+  { name: "Planner",   href: "/planner",    icon: CalendarDays,    color: "text-sky-500",      bg: "bg-sky-500/10" },
+  { name: "Goals",     href: "/goals",      icon: Target,          color: "text-amber-500",    bg: "bg-amber-500/10" },
+  { name: "Analytics", href: "/analytics",  icon: BarChart3,       color: "text-teal-500",     bg: "bg-teal-500/10" },
+  { name: "Settings",  href: "/settings",   icon: Settings,        color: "text-stone-500",    bg: "bg-stone-500/10" },
 ];
 
 const goalSubNav = [
   { name: "Weekly",  href: "/goals/weekly",  icon: Calendar },
   { name: "Monthly", href: "/goals/monthly", icon: TrendingUp },
-  { name: "Yearly",  href: "/goals/yearly",  icon: Flame },
+  { name: "Yearly",  href: "/goals/yearly",  icon: Flower2 },
 ];
 
 export function Sidebar({ open, onClose }: { open?: boolean; onClose?: () => void }) {
@@ -55,13 +56,13 @@ export function Sidebar({ open, onClose }: { open?: boolean; onClose?: () => voi
         {/* Logo */}
         <div className="flex items-center justify-between px-5 py-5 border-b border-border/50">
           <div className="flex items-center gap-3">
-            <div className="logo-mark w-9 h-9 rounded-xl flex items-center justify-center shadow-glow-sm">
-              <Flame className="w-4.5 h-4.5 text-white" />
+            <div className="logo-mark w-9 h-9 rounded-xl flex items-center justify-center">
+              <Leaf className="w-4.5 h-4.5 text-white" />
             </div>
             <div>
-              <span className="text-[15px] font-bold tracking-tight">HabitFlow</span>
+              <span className="text-[15px] font-bold tracking-tight font-display">HabitFlow</span>
               <p className="text-[10px] text-muted-foreground font-medium leading-none mt-0.5">
-                Smart Tracker
+                Grow Your Garden
               </p>
             </div>
           </div>
@@ -98,12 +99,11 @@ export function Sidebar({ open, onClose }: { open?: boolean; onClose?: () => voi
                       : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   )}
                 >
-                  {/* Active left indicator */}
+                  {/* Active indicator */}
                   {isActive && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-gradient-to-b from-primary to-violet-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-gradient-to-b from-emerald-500 to-green-400 shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
                   )}
 
-                  {/* Icon */}
                   <div
                     className={cn(
                       "flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200",
@@ -157,13 +157,13 @@ export function Sidebar({ open, onClose }: { open?: boolean; onClose?: () => voi
 
         {/* Footer */}
         <div className="px-4 py-4 border-t border-border/50">
-          <div className="flex items-center gap-2.5 px-2 py-2 rounded-xl bg-gradient-to-r from-primary/8 to-violet-500/6 border border-primary/15">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary/20 to-violet-500/20 flex items-center justify-center">
-              <Flame className="w-3.5 h-3.5 text-primary" />
+          <div className="flex items-center gap-2.5 px-2 py-2 rounded-xl bg-gradient-to-r from-primary/8 to-emerald-500/6 border border-primary/15">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary/20 to-emerald-500/20 flex items-center justify-center">
+              <Sprout className="w-3.5 h-3.5 text-primary" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold text-foreground">Track. Grow. Achieve.</p>
-              <p className="text-[10px] text-muted-foreground">HabitFlow v1.0</p>
+              <p className="text-[11px] font-semibold text-foreground">Plant. Water. Bloom.</p>
+              <p className="text-[10px] text-muted-foreground">HabitFlow v2.0</p>
             </div>
           </div>
         </div>

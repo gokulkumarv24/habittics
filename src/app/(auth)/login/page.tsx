@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Flame, ArrowRight, CheckCircle2, Target, BarChart3 } from "lucide-react";
+import { Leaf, ArrowRight, Sprout, Droplets, Flower2 } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -49,16 +49,16 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex bg-background">
       {/* ── Left brand panel (desktop only) ── */}
-      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden bg-gradient-to-br from-primary/10 via-violet-500/8 to-background">
+      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden bg-gradient-to-br from-primary/10 via-emerald-500/8 to-background">
         {/* Ambient glows */}
         <div className="pointer-events-none absolute -top-20 -left-20 w-80 h-80 rounded-full bg-primary/15 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-20 right-10 w-60 h-60 rounded-full bg-violet-500/12 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-20 right-10 w-60 h-60 rounded-full bg-emerald-500/12 blur-3xl" />
         <div className="pointer-events-none absolute inset-0 bg-dots opacity-30" />
 
         {/* Logo */}
         <div className="relative flex items-center gap-3">
           <div className="logo-mark w-10 h-10 rounded-xl flex items-center justify-center shadow-glow-sm">
-            <Flame className="w-5 h-5 text-white" />
+            <Leaf className="w-5 h-5 text-white" />
           </div>
           <span className="text-xl font-bold">HabitFlow</span>
         </div>
@@ -67,20 +67,20 @@ export default function LoginPage() {
         <div className="relative space-y-8">
           <div>
             <h2 className="text-3xl font-bold mb-3">
-              Build habits that{" "}
-              <span className="text-gradient">actually stick.</span>
+              Grow habits that{" "}
+              <span className="text-gradient">take root.</span>
             </h2>
             <p className="text-muted-foreground leading-relaxed max-w-sm">
-              Track progress, celebrate streaks, and hit your goals with the
-              most intuitive habit tracker out there.
+              Every habit is a seed. Water it daily, watch it grow, and tend a
+              garden that reflects your discipline.
             </p>
           </div>
 
           <div className="space-y-3">
             {[
-              { icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-500/10", text: "Daily habit tracking with streaks" },
-              { icon: Target,       color: "text-violet-500",  bg: "bg-violet-500/10",  text: "Weekly, monthly & yearly goals" },
-              { icon: BarChart3,    color: "text-indigo-500",  bg: "bg-indigo-500/10",  text: "Beautiful analytics dashboard" },
+              { icon: Sprout,   color: "text-emerald-500", bg: "bg-emerald-500/10", text: "Plant habits and watch them grow" },
+              { icon: Droplets, color: "text-teal-500",    bg: "bg-teal-500/10",    text: "Water daily to build your streak" },
+              { icon: Flower2,  color: "text-amber-500",   bg: "bg-amber-500/10",   text: "Bloom after 30 days of consistency" },
             ].map((item) => (
               <div key={item.text} className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-lg ${item.bg} flex items-center justify-center flex-shrink-0`}>
@@ -103,13 +103,13 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="flex justify-center mb-8 lg:hidden">
             <div className="logo-mark w-12 h-12 rounded-2xl flex items-center justify-center shadow-glow">
-              <Flame className="w-6 h-6 text-white" />
+              <Leaf className="w-6 h-6 text-white" />
             </div>
           </div>
 
           <div className="mb-8">
             <h1 className="text-2xl font-bold mb-1">Welcome back</h1>
-            <p className="text-muted-foreground text-sm">Sign in to continue tracking your habits</p>
+            <p className="text-muted-foreground text-sm">Sign in to tend your garden</p>
           </div>
 
           {/* OAuth buttons */}

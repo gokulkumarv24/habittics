@@ -4,7 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Target, Calendar, TrendingUp, Flame } from "lucide-react";
+import { Plus, Target, Calendar, TrendingUp, Flower2 } from "lucide-react";
 import Link from "next/link";
 import { calculateProgress } from "@/lib/utils";
 
@@ -18,7 +18,7 @@ export default function GoalsPage() {
   };
 
   const typeConfig = {
-    YEARLY: { icon: Flame, label: "Yearly Goals", color: "text-violet-500" },
+    YEARLY: { icon: Flower2, label: "Yearly Goals", color: "text-amber-500" },
     MONTHLY: { icon: TrendingUp, label: "Monthly Goals", color: "text-blue-500" },
     WEEKLY: { icon: Calendar, label: "Weekly Goals", color: "text-emerald-500" },
   };

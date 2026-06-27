@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format, addDays, subDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns";
-import { ChevronLeft, ChevronRight, Plus, Clock, Check, Trash2, Calendar, Flame } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Clock, Check, Trash2, Calendar, Sprout } from "lucide-react";
 
 const PRIORITY_LABELS = ["Normal", "High", "Urgent"];
 const PRIORITY_COLORS = ["border-l-muted-foreground", "border-l-yellow-500", "border-l-red-500"];
@@ -197,7 +197,7 @@ export default function PlannerPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                  <Flame className="w-3.5 h-3.5" />
+                  <Sprout className="w-3.5 h-3.5" />
                   Scheduled Habits
                 </CardTitle>
               </CardHeader>

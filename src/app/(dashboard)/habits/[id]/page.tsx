@@ -5,7 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Flame, Calendar, Target } from "lucide-react";
+import { ArrowLeft, Sprout, Calendar, Target } from "lucide-react";
 import Link from "next/link";
 import { format, subDays, startOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -63,7 +63,7 @@ export default function HabitDetailPage() {
       <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
-            <Flame className="w-6 h-6 text-orange-500 mx-auto mb-1" />
+            <Sprout className="w-6 h-6 text-emerald-500 mx-auto mb-1" />
             <p className="text-2xl font-bold font-mono">{habit.streak?.currentStreak ?? 0}</p>
             <p className="text-xs text-muted-foreground">Current Streak</p>
           </CardContent>

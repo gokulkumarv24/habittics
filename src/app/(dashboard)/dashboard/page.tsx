@@ -1,6 +1,5 @@
 "use client";
 
-import { trpc } from "@/lib/trpc";
 import { StatsOverview } from "@/components/dashboard/stats-overview";
 import { TodayHabits } from "@/components/dashboard/today-habits";
 import { TodayPlan } from "@/components/dashboard/today-plan";
@@ -23,10 +22,11 @@ export default function DashboardPage() {
           {format(new Date(), "EEEE, MMMM d")}
         </p>
         <h1 className="text-2xl lg:text-3xl font-bold tracking-tight mt-1">
-          {getGreeting()}, <span className="text-gradient">{firstName}</span>
+          {getGreeting()},{" "}
+          <span className="text-gradient">{firstName}</span>
         </h1>
         <p className="text-muted-foreground mt-1">
-          Here&apos;s how your habits are looking today.
+          Here&apos;s how your garden is growing today.
         </p>
       </div>
 
@@ -35,12 +35,9 @@ export default function DashboardPage() {
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Today's Habits - Takes 2 columns */}
         <div className="lg:col-span-2">
           <TodayHabits />
         </div>
-
-        {/* Today's Plan + Active Goals */}
         <div className="space-y-6">
           <TodayPlan />
           <ActiveGoals />

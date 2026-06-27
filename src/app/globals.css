@@ -4,48 +4,56 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 224 71% 4%;
+    --background: 100 25% 97%;
+    --foreground: 150 25% 13%;
     --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
+    --card-foreground: 150 25% 13%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
-    --primary: 239 84% 67%;
+    --popover-foreground: 150 25% 13%;
+    --primary: 142 76% 36%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 224 71% 9%;
-    --muted: 220 14% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 220 14% 96%;
-    --accent-foreground: 224 71% 9%;
-    --destructive: 0 84% 60%;
+    --secondary: 140 15% 93%;
+    --secondary-foreground: 150 25% 13%;
+    --muted: 140 15% 93%;
+    --muted-foreground: 150 12% 42%;
+    --accent: 140 15% 93%;
+    --accent-foreground: 150 25% 13%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 239 84% 67%;
-    --radius: 0.875rem;
+    --border: 140 12% 88%;
+    --input: 140 12% 88%;
+    --ring: 142 76% 36%;
+    --radius: 0.75rem;
+
+    --growth: 142 76% 36%;
+    --bloom: 43 96% 56%;
+    --drought: 30 6% 50%;
   }
 
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-    --card: 222 47% 7%;
-    --card-foreground: 213 31% 91%;
-    --popover: 222 47% 7%;
-    --popover-foreground: 213 31% 91%;
-    --primary: 239 84% 72%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 223 47% 12%;
-    --secondary-foreground: 213 31% 91%;
-    --muted: 223 47% 12%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 223 47% 12%;
-    --accent-foreground: 213 31% 91%;
+    --background: 150 20% 4%;
+    --foreground: 145 12% 90%;
+    --card: 155 20% 8%;
+    --card-foreground: 145 12% 90%;
+    --popover: 155 20% 8%;
+    --popover-foreground: 145 12% 90%;
+    --primary: 142 69% 58%;
+    --primary-foreground: 150 40% 4%;
+    --secondary: 150 15% 12%;
+    --secondary-foreground: 145 12% 90%;
+    --muted: 150 15% 12%;
+    --muted-foreground: 150 10% 56%;
+    --accent: 150 15% 12%;
+    --accent-foreground: 145 12% 90%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
-    --border: 216 34% 17%;
-    --input: 216 34% 17%;
-    --ring: 239 84% 72%;
+    --border: 150 12% 16%;
+    --input: 150 12% 16%;
+    --ring: 142 69% 58%;
+
+    --growth: 142 69% 58%;
+    --bloom: 43 96% 56%;
+    --drought: 30 6% 42%;
   }
 }
 
@@ -58,7 +66,7 @@
     -webkit-tap-highlight-color: transparent;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply tracking-tight;
+    @apply font-display tracking-tight;
   }
 }
 
@@ -71,8 +79,10 @@
   .overflow-auto { overflow: overlay; }
 }
 
-/* ─── Glass morphism ─────────────────────────────────────────────── */
+/* ─── Utilities ─────────────────────────────────────────────────── */
 @layer utilities {
+
+  /* Greenhouse glass */
   .glass {
     @apply bg-white/70 dark:bg-card/60 backdrop-blur-xl border border-white/25 dark:border-white/5;
   }
@@ -83,28 +93,31 @@
     @apply bg-white/80 dark:bg-card/70 backdrop-blur-xl border border-white/25 dark:border-white/5 shadow-xl shadow-black/5 dark:shadow-black/30;
   }
   .glass-nav {
-    @apply bg-card/90 dark:bg-card/85 backdrop-blur-2xl border-b border-white/20 dark:border-border/60;
+    @apply bg-card/90 dark:bg-card/85 backdrop-blur-2xl border-b border-border/60;
   }
   .glass-sidebar {
     @apply bg-card/95 dark:bg-card/90 backdrop-blur-xl border-r border-border/60 dark:border-border/40;
   }
 
-  /* ─── Brand gradient text ──────────────────────────────────────── */
+  /* Garden gradient text */
   .text-gradient {
-    @apply bg-gradient-to-r from-indigo-400 via-violet-500 to-purple-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-emerald-500 via-green-400 to-teal-500 bg-clip-text text-transparent;
   }
   .text-gradient-animate {
-    @apply bg-gradient-to-r from-indigo-400 via-violet-500 to-purple-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-emerald-500 via-green-400 to-teal-500 bg-clip-text text-transparent;
     background-size: 200% auto;
     animation: gradientPan 5s ease infinite;
   }
+  .text-bloom {
+    @apply bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 bg-clip-text text-transparent;
+  }
 
-  /* ─── Background patterns ──────────────────────────────────────── */
+  /* Background patterns */
   .bg-mesh {
     background-image:
-      radial-gradient(at 18% 0%,   hsl(239 84% 67% / 0.15) 0px, transparent 50%),
-      radial-gradient(at 82% 12%,  hsl(270 90% 66% / 0.13) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, hsl(200 95% 55% / 0.10) 0px, transparent 50%);
+      radial-gradient(at 18% 0%,   hsl(142 76% 36% / 0.12) 0px, transparent 50%),
+      radial-gradient(at 82% 12%,  hsl(160 60% 40% / 0.10) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, hsl(43 96% 56% / 0.06) 0px, transparent 50%);
   }
   .bg-grid {
     background-image: radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px);
@@ -115,7 +128,7 @@
     background-size: 20px 20px;
   }
 
-  /* ─── Glow effects ─────────────────────────────────────────────── */
+  /* Glow effects */
   .glow-primary {
     box-shadow: 0 0 40px hsl(var(--primary) / 0.18), 0 0 80px hsl(var(--primary) / 0.08);
   }
@@ -123,7 +136,7 @@
     box-shadow: 0 0 20px hsl(var(--primary) / 0.14);
   }
 
-  /* ─── Card interactions ────────────────────────────────────────── */
+  /* Card interactions */
   .card-lift {
     @apply transition-all duration-200 ease-out;
   }
@@ -140,7 +153,26 @@
     background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
   }
 
-  /* ─── Animations ───────────────────────────────────────────────── */
+  /* ─── Plant animations ──────────────────────────────────────────── */
+  .animate-sway {
+    animation: sway 4s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+  .animate-grow-up {
+    animation: growUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: bottom center;
+  }
+  .animate-drip {
+    animation: drip 0.6s ease-in forwards;
+  }
+  .animate-bloom-open {
+    animation: bloomOpen 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .animate-pollen {
+    animation: pollen 2s ease-out infinite;
+  }
+
+  /* General animations */
   .animate-fade-in {
     animation: fadeIn 0.35s ease-out;
   }
@@ -163,36 +195,24 @@
     animation: pulseSlow 3s ease-in-out infinite;
   }
 
-  /* ─── 3D Primitives ────────────────────────────────────────────── */
+  /* 3D */
   .perspective    { perspective: 1000px; }
   .perspective-sm { perspective: 600px; }
   .preserve-3d    { transform-style: preserve-3d; }
   .backface-hidden { backface-visibility: hidden; }
-  .animate-spin-3d  { animation: spin3d 6s linear infinite; transform-style: preserve-3d; }
-  .animate-float-3d { animation: float3d 7s ease-in-out infinite; transform-style: preserve-3d; }
 
-  /* translateZ depth helpers for 3D cards */
-  .tz-40 { transform: translateZ(40px); }
-  .tz-50 { transform: translateZ(50px); }
-  .tz-70 { transform: translateZ(70px); }
-
-  /* ─── Shimmer skeleton ─────────────────────────────────────────── */
+  /* Shimmer skeleton */
   .shimmer {
     @apply relative overflow-hidden bg-muted rounded-lg;
   }
   .shimmer::after {
     content: '';
     @apply absolute inset-0 -translate-x-full;
-    background-image: linear-gradient(
-      90deg,
-      transparent,
-      hsl(0 0% 100% / 0.06),
-      transparent
-    );
+    background-image: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.06), transparent);
     animation: shimmer 1.6s infinite;
   }
 
-  /* ─── Stagger entrance ─────────────────────────────────────────── */
+  /* Stagger entrance */
   .animate-stagger > * {
     opacity: 0;
     animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -203,15 +223,25 @@
   .animate-stagger > *:nth-child(4) { animation-delay: 0.22s; }
   .animate-stagger > *:nth-child(5) { animation-delay: 0.28s; }
   .animate-stagger > *:nth-child(6) { animation-delay: 0.34s; }
+
+  /* Plant states */
+  .plant-wilted {
+    filter: saturate(0.3) brightness(0.8);
+    transform: rotate(3deg);
+    transform-origin: bottom center;
+    transition: filter 0.5s ease, transform 0.5s ease;
+  }
+  .plant-watered {
+    animation: waterPerk 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: bottom center;
+  }
 }
 
 @layer components {
-  /* Brand logo mark */
   .logo-mark {
-    @apply bg-gradient-to-br from-primary to-violet-600 shadow-lg shadow-primary/30;
+    @apply bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/30;
   }
 
-  /* Gradient border card */
   .gradient-border-card {
     @apply relative rounded-xl border border-transparent bg-card;
     background-clip: padding-box;
@@ -219,13 +249,12 @@
   .gradient-border-card::before {
     content: '';
     @apply absolute inset-0 rounded-xl -z-[1];
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(270 84% 67% / 0.15));
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(160 60% 40% / 0.15));
     margin: -1px;
   }
 
-  /* Button glow variant */
   .btn-glow {
-    @apply shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow duration-300;
+    @apply shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-shadow duration-300;
   }
 }
 
@@ -276,14 +305,40 @@
   100% { background-position: 0% center; }
 }
 
-@keyframes spin3d {
-  from { transform: rotateY(0deg); }
-  to   { transform: rotateY(360deg); }
+/* ─── Garden keyframes ────────────────────────────────────────────── */
+@keyframes sway {
+  0%, 100% { transform: rotate(-1.5deg); }
+  50%       { transform: rotate(1.5deg); }
 }
 
-@keyframes float3d {
-  0%, 100% { transform: translateY(0)   rotateX(7deg) rotateY(-14deg); }
-  50%       { transform: translateY(-16px) rotateX(7deg) rotateY(-8deg); }
+@keyframes growUp {
+  0%   { transform: scaleY(0); opacity: 0; }
+  60%  { transform: scaleY(1.08); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes drip {
+  0%   { transform: translateY(-16px); opacity: 1; }
+  70%  { transform: translateY(8px); opacity: 1; }
+  100% { transform: translateY(8px); opacity: 0; }
+}
+
+@keyframes bloomOpen {
+  0%   { transform: scale(0); opacity: 0; }
+  50%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pollen {
+  0%   { transform: translateY(0) translateX(0); opacity: 0.6; }
+  50%  { transform: translateY(-8px) translateX(4px); opacity: 0.3; }
+  100% { transform: translateY(-16px) translateX(-2px); opacity: 0; }
+}
+
+@keyframes waterPerk {
+  0%   { transform: scaleY(0.95); }
+  50%  { transform: scaleY(1.05); }
+  100% { transform: scaleY(1); }
 }
 
 @keyframes ripple {

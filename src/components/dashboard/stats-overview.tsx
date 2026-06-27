@@ -2,8 +2,7 @@
 
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tilt } from "@/components/ui/tilt";
-import { CheckCircle2, Flame, TrendingUp, Target } from "lucide-react";
+import { Droplets, Sprout, TrendingUp, Flower2 } from "lucide-react";
 
 export function StatsOverview() {
   const { data: stats, isLoading } = trpc.analytics.getDailyStats.useQuery();
@@ -24,64 +23,67 @@ export function StatsOverview() {
 
   const cards = [
     {
-      title: "Today",
+      title: "Watered",
       value: `${stats?.completedToday ?? 0}/${stats?.totalHabits ?? 0}`,
-      subtitle: "habits done",
-      icon: CheckCircle2,
-      color: "text-emerald-500",
-      tile: "from-emerald-500/20 to-emerald-500/5",
-      glow: "before:from-emerald-500/10",
+      subtitle: "today",
+      icon: Droplets,
+      color: "text-teal-500",
+      bg: "from-teal-500/20 to-teal-500/5",
     },
     {
-      title: "Streak",
+      title: "Growth",
       value: `${stats?.longestStreak?.streak ?? 0}`,
       subtitle: "day streak",
-      icon: Flame,
-      color: "text-orange-500",
-      tile: "from-orange-500/20 to-orange-500/5",
-      glow: "before:from-orange-500/10",
+      icon: Sprout,
+      color: "text-emerald-500",
+      bg: "from-emerald-500/20 to-emerald-500/5",
     },
     {
-      title: "Weekly",
+      title: "Rate",
       value: `${stats?.completionRate ?? 0}%`,
-      subtitle: "completion",
+      subtitle: "this week",
       icon: TrendingUp,
-      color: "text-blue-500",
-      tile: "from-blue-500/20 to-blue-500/5",
-      glow: "before:from-blue-500/10",
+      color: "text-green-500",
+      bg: "from-green-500/20 to-green-500/5",
     },
     {
-      title: "Goals",
+      title: "In Bloom",
       value: `${stats?.activeGoals ?? 0}`,
-      subtitle: "active",
-      icon: Target,
-      color: "text-violet-500",
-      tile: "from-violet-500/20 to-violet-500/5",
-      glow: "before:from-violet-500/10",
+      subtitle: "goals active",
+      icon: Flower2,
+      color: "text-amber-500",
+      bg: "from-amber-500/20 to-amber-500/5",
     },
   ];
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {cards.map((card) => (
-        <Tilt key={card.title} className="rounded-lg">
-          <Card
-            className={`relative overflow-hidden hover:shadow-xl hover:shadow-primary/5 transition-shadow before:content-[''] before:absolute before:-top-8 before:-right-8 before:h-24 before:w-24 before:rounded-full before:bg-gradient-to-br before:to-transparent before:blur-2xl ${card.glow}`}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between" style={{ transform: "translateZ(40px)" }}>
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{card.title}</p>
-                  <p className="text-3xl font-bold font-mono mt-1.5 tracking-tight">{card.value}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{card.subtitle}</p>
-                </div>
-                <div className={`p-2.5 rounded-xl bg-gradient-to-br ${card.tile} ring-1 ring-inset ring-white/10`}>
-                  <card.icon className={`w-5 h-5 ${card.color}`} />
-                </div>
+        <Card
+          key={card.title}
+          className="hover:shadow-md transition-shadow"
+        >
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {card.title}
+                </p>
+                <p className="text-3xl font-bold font-mono mt-1.5 tracking-tight">
+                  {card.value}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {card.subtitle}
+                </p>
               </div>
-            </CardContent>
-          </Card>
-        </Tilt>
+              <div
+                className={`p-2.5 rounded-xl bg-gradient-to-br ${card.bg} ring-1 ring-inset ring-white/10`}
+              >
+                <card.icon className={`w-5 h-5 ${card.color}`} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );

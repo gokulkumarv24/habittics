@@ -4,7 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { Flame } from "lucide-react";
+import { Sprout } from "lucide-react";
 import { subDays } from "date-fns";
 
 export default function AnalyticsPage() {
@@ -67,7 +67,7 @@ export default function AnalyticsPage() {
                   contentStyle={{ borderRadius: "8px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
                   formatter={(value: number) => [`${value}%`, "Rate"]}
                 />
-                <Bar dataKey="rate" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                <Bar dataKey="rate" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -120,9 +120,9 @@ export default function AnalyticsPage() {
                 <div key={streak.habitId} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                   <span className="text-lg font-bold text-muted-foreground w-6">#{i + 1}</span>
                   <span className="flex-1 font-medium">{streak.title}</span>
-                  <span className="flex items-center gap-1 font-mono font-bold text-orange-500">
+                  <span className="flex items-center gap-1 font-mono font-bold text-emerald-500">
                     {streak.streak}
-                    <Flame className="w-4 h-4" aria-hidden="true" />
+                    <Sprout className="w-4 h-4" aria-hidden="true" />
                   </span>
                 </div>
               ))}
