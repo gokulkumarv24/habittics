@@ -5,7 +5,8 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { format, addDays, subDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns";
+import { format, addDays, subDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, getDay } from "date-fns";
+import type { HabitFrequency } from "@prisma/client";
 import { ChevronLeft, ChevronRight, Plus, Clock, Check, Trash2, Calendar, Sprout } from "lucide-react";
 
 const PRIORITY_LABELS = ["Normal", "High", "Urgent"];
@@ -39,8 +40,20 @@ export default function PlannerPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [dayNote, setDayNote] = useState("");
 
-  // Scheduled habits for this day
-  const scheduledHabits = habits?.filter((h) => h.scheduledTime && !h.isArchived) ?? [];
+  // Scheduled habits for the selected day — respects frequency
+  const scheduledHabits = useMemo(() => {
+    if (!habits) return [];
+    const day = getDay(selectedDate);
+    return habits.filter((h) => {
+      if (!h.scheduledTime || h.isArchived) return false;
+      const freq = h.frequency as HabitFrequency;
+      if (freq === "DAILY") return true;
+      if (freq === "WEEKDAYS") return day >= 1 && day <= 5;
+      if (freq === "WEEKENDS") return day === 0 || day === 6;
+      if (freq === "CUSTOM") return (h.customDays as number[]).includes(day);
+      return true;
+    });
+  }, [habits, selectedDate]);
 
   // Dates that have plans with items
   const datesWithPlans = useMemo(() => {
