@@ -11,7 +11,7 @@ import type { AppRouter } from "@/server/trpc/router";
 type HabitWithRelations = inferRouterOutputs<AppRouter>["habit"]["getAll"][number];
 
 export function TodayHabits() {
-  const { data: habits, isLoading } = trpc.habit.getAll.useQuery();
+  const { data: habits, isLoading } = trpc.habit.getAll.useQuery({ todayOnly: true });
   const utils = trpc.useUtils();
   const toggleMutation = trpc.habit.toggleComplete.useMutation({
     onSuccess: () => {

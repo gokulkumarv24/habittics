@@ -108,7 +108,7 @@ model Category {
   id     String @id @default(cuid())
   userId String
   name   String
-  color  String @default("#6366f1")
+  color  String @default("#10b981")
   icon   String @default("folder")
   order  Int    @default(0)
 
@@ -288,7 +288,7 @@ model DayPlanItem {
   completed   Boolean   @default(false)
   completedAt DateTime?
   priority    Int       @default(0) // 0=normal, 1=high, 2=urgent
-  color       String    @default("#6366f1")
+  color       String    @default("#10b981")
   order       Int       @default(0)
   createdAt   DateTime  @default(now())
 

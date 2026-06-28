@@ -1,6 +1,27 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
-import { startOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays } from "date-fns";
+import { startOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays, getDay } from "date-fns";
+import type { HabitFrequency } from "@prisma/client";
+
+function isHabitScheduledForDate(
+  frequency: HabitFrequency,
+  customDays: number[],
+  date: Date
+): boolean {
+  const jsDay = getDay(date);
+  switch (frequency) {
+    case "DAILY":
+      return true;
+    case "WEEKDAYS":
+      return jsDay >= 1 && jsDay <= 5;
+    case "WEEKENDS":
+      return jsDay === 0 || jsDay === 6;
+    case "CUSTOM":
+      return customDays.includes(jsDay);
+    default:
+      return true;
+  }
+}
 
 export const analyticsRouter = createTRPCRouter({
   getDailyStats: protectedProcedure
@@ -9,13 +30,18 @@ export const analyticsRouter = createTRPCRouter({
       const userId = ctx.session.user.id!;
       const today = startOfDay(input?.date ?? new Date());
 
-      const habits = await ctx.db.habit.findMany({
+      const allHabits = await ctx.db.habit.findMany({
         where: { userId, isArchived: false },
         include: {
           streak: true,
           logs: { where: { date: today } },
         },
       });
+
+      // Only count habits scheduled for today
+      const habits = allHabits.filter((h) =>
+        isHabitScheduledForDate(h.frequency, h.customDays, today)
+      );
 
       const totalHabits = habits.length;
       const completedToday = habits.filter((h) => h.logs.some((l) => l.completed)).length;
@@ -75,16 +101,21 @@ export const analyticsRouter = createTRPCRouter({
     for (let i = 0; i < 7; i++) {
       const date = new Date(weekStart);
       date.setDate(date.getDate() + i);
+      const scheduledForDay = habits.filter((h) =>
+        isHabitScheduledForDate(h.frequency, h.customDays, date)
+      );
       const dayLogs = logs.filter(
         (l) => startOfDay(new Date(l.date)).getTime() === startOfDay(date).getTime()
       );
+      const scheduledIds = new Set(scheduledForDay.map((h) => h.id));
+      const completedCount = dayLogs.filter((l) => l.completed && scheduledIds.has(l.habitId)).length;
       days.push({
         date: date.toISOString(),
         day: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i],
-        total: habits.length,
-        completed: dayLogs.filter((l) => l.completed).length,
-        rate: habits.length > 0
-          ? Math.round((dayLogs.filter((l) => l.completed).length / habits.length) * 100)
+        total: scheduledForDay.length,
+        completed: completedCount,
+        rate: scheduledForDay.length > 0
+          ? Math.round((completedCount / scheduledForDay.length) * 100)
           : 0,
       });
     }

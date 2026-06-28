@@ -1,6 +1,27 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
-import { startOfDay } from "date-fns";
+import { startOfDay, getDay } from "date-fns";
+import type { HabitFrequency } from "@prisma/client";
+
+function isHabitScheduledForDate(
+  frequency: HabitFrequency,
+  customDays: number[],
+  date: Date
+): boolean {
+  const jsDay = getDay(date); // 0=Sun, 1=Mon, ..., 6=Sat
+  switch (frequency) {
+    case "DAILY":
+      return true;
+    case "WEEKDAYS":
+      return jsDay >= 1 && jsDay <= 5;
+    case "WEEKENDS":
+      return jsDay === 0 || jsDay === 6;
+    case "CUSTOM":
+      return customDays.includes(jsDay);
+    default:
+      return true;
+  }
+}
 
 export const habitRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -8,11 +29,13 @@ export const habitRouter = createTRPCRouter({
       z.object({
         includeArchived: z.boolean().default(false),
         categoryId: z.string().optional(),
+        todayOnly: z.boolean().default(false),
       }).optional()
     )
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id!;
-      return ctx.db.habit.findMany({
+      const today = new Date();
+      const habits = await ctx.db.habit.findMany({
         where: {
           userId,
           isArchived: input?.includeArchived ? undefined : false,
@@ -22,12 +45,19 @@ export const habitRouter = createTRPCRouter({
           category: true,
           streak: true,
           logs: {
-            where: { date: startOfDay(new Date()) },
+            where: { date: startOfDay(today) },
             take: 1,
           },
         },
         orderBy: { order: "asc" },
       });
+
+      if (input?.todayOnly) {
+        return habits.filter((h) =>
+          isHabitScheduledForDate(h.frequency, h.customDays, today)
+        );
+      }
+      return habits;
     }),
 
   getById: protectedProcedure
@@ -179,34 +209,54 @@ export const habitRouter = createTRPCRouter({
 });
 
 async function updateStreak(db: any, habitId: string) {
+  const habit = await db.habit.findUnique({
+    where: { id: habitId },
+    select: { frequency: true, customDays: true },
+  });
+
   const logs = await db.habitLog.findMany({
     where: { habitId, completed: true },
     orderBy: { date: "desc" },
     take: 365,
   });
 
+  const completedDates = new Set(
+    logs.map((l: any) => startOfDay(new Date(l.date)).getTime())
+  );
+
   let currentStreak = 0;
   const today = startOfDay(new Date());
+  const checkDate = new Date(today);
 
-  for (let i = 0; i < logs.length; i++) {
-    const logDate = startOfDay(new Date(logs[i].date));
-    const expectedDate = new Date(today);
-    expectedDate.setDate(expectedDate.getDate() - i);
+  // Walk backwards day by day, skipping non-scheduled days
+  for (let i = 0; i < 400; i++) {
+    const d = new Date(checkDate);
+    d.setDate(d.getDate() - i);
+    const dayStart = startOfDay(d);
 
-    if (logDate.getTime() === startOfDay(expectedDate).getTime()) {
+    if (!isHabitScheduledForDate(habit.frequency, habit.customDays, dayStart)) {
+      continue; // skip non-scheduled days (e.g. weekends for WEEKDAYS habits)
+    }
+
+    if (completedDates.has(dayStart.getTime())) {
       currentStreak++;
     } else {
+      // Today is allowed to be incomplete without breaking streak
+      if (i === 0) continue;
       break;
     }
   }
+
+  const existing = await db.habitStreak.findUnique({ where: { habitId } });
+  const longestStreak = Math.max(currentStreak, existing?.longestStreak ?? 0);
 
   return db.habitStreak.upsert({
     where: { habitId },
     update: {
       currentStreak,
-      longestStreak: { set: undefined },
+      longestStreak,
       lastCompletedAt: logs[0]?.date || null,
     },
-    create: { habitId, currentStreak, longestStreak: currentStreak },
+    create: { habitId, currentStreak, longestStreak },
   });
 }

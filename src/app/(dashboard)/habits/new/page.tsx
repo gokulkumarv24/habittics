@@ -33,6 +33,7 @@ export default function NewHabitPage() {
     description: "",
     color: "#10b981",
     frequency: "DAILY" as "DAILY" | "WEEKDAYS" | "WEEKENDS" | "CUSTOM",
+    customDays: [] as number[],
     targetPerDay: 1,
     unit: "",
     reminderTime: "",
@@ -51,6 +52,7 @@ export default function NewHabitPage() {
     e.preventDefault();
     createMutation.mutate({
       ...form,
+      customDays: form.frequency === "CUSTOM" ? form.customDays : [],
       categoryId: form.categoryId || undefined,
       unit: form.unit || undefined,
       reminderTime: form.reminderTime || undefined,
@@ -65,10 +67,11 @@ export default function NewHabitPage() {
       description: template.description,
       color: template.color,
       frequency: "DAILY",
+      customDays: [],
       targetPerDay: template.targetPerDay,
       unit: template.unit,
       reminderTime: template.reminderTime,
-      scheduledTime: template.reminderTime, // Use same time as scheduled
+      scheduledTime: template.reminderTime,
       categoryId: matchedCategory?.id || "",
     });
     setShowTemplates(false);
@@ -174,6 +177,45 @@ export default function NewHabitPage() {
                 ))}
               </div>
             </div>
+
+            {/* Custom Days Picker (shown when CUSTOM is selected) */}
+            {form.frequency === "CUSTOM" && (
+              <div className="space-y-2">
+                <Label>Select Days</Label>
+                <div className="flex gap-2 flex-wrap">
+                  {[
+                    { value: 1, label: "Mon" },
+                    { value: 2, label: "Tue" },
+                    { value: 3, label: "Wed" },
+                    { value: 4, label: "Thu" },
+                    { value: 5, label: "Fri" },
+                    { value: 6, label: "Sat" },
+                    { value: 0, label: "Sun" },
+                  ].map((day) => (
+                    <button
+                      key={day.value}
+                      type="button"
+                      onClick={() => {
+                        const days = form.customDays.includes(day.value)
+                          ? form.customDays.filter((d) => d !== day.value)
+                          : [...form.customDays, day.value];
+                        setForm({ ...form, customDays: days });
+                      }}
+                      className={`w-10 h-10 text-sm rounded-lg border transition-colors ${
+                        form.customDays.includes(day.value)
+                          ? "bg-primary text-white border-primary"
+                          : "hover:bg-muted"
+                      }`}
+                    >
+                      {day.label}
+                    </button>
+                  ))}
+                </div>
+                {form.customDays.length === 0 && (
+                  <p className="text-xs text-destructive">Select at least one day</p>
+                )}
+              </div>
+            )}
 
             {/* Target & Unit */}
             <div className="grid grid-cols-2 gap-4">
@@ -286,7 +328,7 @@ export default function NewHabitPage() {
 
             {/* Submit */}
             <div className="flex gap-3 pt-4">
-              <Button type="submit" disabled={!form.title || createMutation.isPending}>
+              <Button type="submit" disabled={!form.title || createMutation.isPending || (form.frequency === "CUSTOM" && form.customDays.length === 0)}>
                 {createMutation.isPending ? "Creating..." : "Create Habit"}
               </Button>
               <Link href="/habits">

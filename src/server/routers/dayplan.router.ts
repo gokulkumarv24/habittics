@@ -49,7 +49,7 @@ export const dayPlanRouter = createTRPCRouter({
         startTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
         endTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
         priority: z.number().min(0).max(2).default(0),
-        color: z.string().default("#6366f1"),
+        color: z.string().default("#10b981"),
       })
     )
     .mutation(async ({ ctx, input }) => {

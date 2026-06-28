@@ -88,6 +88,13 @@ export default function HabitsPage() {
                       : "Ready to plant"}
                   </p>
 
+                  {/* Frequency badge */}
+                  {habit.frequency !== "DAILY" && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full mt-1 bg-muted text-muted-foreground">
+                      {habit.frequency === "WEEKDAYS" ? "Weekdays" : habit.frequency === "WEEKENDS" ? "Weekends" : "Custom"}
+                    </span>
+                  )}
+
                   {/* Category badge */}
                   {habit.category && (
                     <span

@@ -41,7 +41,7 @@ export function StatsOverview() {
     {
       title: "Rate",
       value: `${stats?.completionRate ?? 0}%`,
-      subtitle: "this week",
+      subtitle: "today",
       icon: TrendingUp,
       color: "text-green-500",
       bg: "from-green-500/20 to-green-500/5",
