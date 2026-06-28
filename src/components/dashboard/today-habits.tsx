@@ -5,13 +5,31 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Droplet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Plant, getGrowthLabel } from "@/components/garden/plant";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
+import { getDay } from "date-fns";
+import type { HabitFrequency } from "@prisma/client";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/trpc/router";
 
 type HabitWithRelations = inferRouterOutputs<AppRouter>["habit"]["getAll"][number];
 
 const HOLD_DURATION = 600;
+
+function isScheduledToday(frequency: string, customDays: number[]): boolean {
+  const jsDay = getDay(new Date());
+  switch (frequency) {
+    case "DAILY":
+      return true;
+    case "WEEKDAYS":
+      return jsDay >= 1 && jsDay <= 5;
+    case "WEEKENDS":
+      return jsDay === 0 || jsDay === 6;
+    case "CUSTOM":
+      return customDays.includes(jsDay);
+    default:
+      return true;
+  }
+}
 
 function HabitRow({
   habit,
@@ -33,7 +51,6 @@ function HabitRow({
   const [perkAnim, setPerkAnim] = useState(false);
   const [shakeAnim, setShakeAnim] = useState(false);
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const holdStart = useRef(0);
 
   const startHold = useCallback(() => {
     if (isPending) return;
@@ -45,7 +62,6 @@ function HabitRow({
       return;
     }
 
-    holdStart.current = Date.now();
     setHolding(true);
 
     holdTimer.current = setTimeout(() => {
@@ -156,7 +172,7 @@ function HabitRow({
 }
 
 export function TodayHabits() {
-  const { data: habits, isLoading } = trpc.habit.getAll.useQuery({ todayOnly: true });
+  const { data: allHabits, isLoading } = trpc.habit.getAll.useQuery();
   const utils = trpc.useUtils();
   const toggleMutation = trpc.habit.toggleComplete.useMutation({
     onSuccess: () => {
@@ -164,6 +180,13 @@ export function TodayHabits() {
       utils.analytics.getDailyStats.invalidate();
     },
   });
+
+  const habits = useMemo(() => {
+    if (!allHabits) return [];
+    return allHabits.filter((h) =>
+      isScheduledToday(h.frequency as HabitFrequency, h.customDays as number[])
+    );
+  }, [allHabits]);
 
   const handleToggle = useCallback(
     (habitId: string) => {
@@ -187,10 +210,10 @@ export function TodayHabits() {
     );
   }
 
-  const total = habits?.length ?? 0;
-  const done =
-    habits?.filter((h) => h.logs.length > 0 && h.logs[0].completed).length ?? 0;
+  const total = habits.length;
+  const done = habits.filter((h) => h.logs.length > 0 && h.logs[0].completed).length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const restingCount = (allHabits?.length ?? 0) - total;
 
   return (
     <Card className="card-lift relative overflow-hidden">
@@ -214,7 +237,7 @@ export function TodayHabits() {
         )}
       </CardHeader>
       <CardContent className="space-y-2 relative z-10">
-        {habits && habits.length > 0 ? (
+        {habits.length > 0 ? (
           habits.map((habit: HabitWithRelations, i: number) => (
             <HabitRow
               key={habit.id}
@@ -237,6 +260,12 @@ export function TodayHabits() {
               All watered — your garden is thriving!
             </p>
           </div>
+        )}
+
+        {restingCount > 0 && (
+          <p className="text-xs text-muted-foreground text-center pt-1">
+            {restingCount} {restingCount === 1 ? "habit" : "habits"} resting today
+          </p>
         )}
       </CardContent>
     </Card>

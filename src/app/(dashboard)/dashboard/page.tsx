@@ -16,7 +16,7 @@ import { Plant } from "@/components/garden/plant";
 export default function DashboardPage() {
   const { data: session } = useSession();
   const firstName = session?.user?.name?.split(" ")[0] || "there";
-  const { data: habits } = trpc.habit.getAll.useQuery({ todayOnly: false });
+  const { data: habits } = trpc.habit.getAll.useQuery();
 
   const topStreak = habits
     ?.filter((h) => (h.streak?.currentStreak ?? 0) > 0)
