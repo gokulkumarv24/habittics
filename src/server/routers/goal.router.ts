@@ -69,6 +69,10 @@ export const goalRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (input.endDate <= input.startDate) {
+        throw new Error("End date must be after start date");
+      }
+
       const { actions, ...goalData } = input;
       const goal = await ctx.db.goal.create({
         data: {
@@ -149,6 +153,12 @@ export const goalRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // Verify goal belongs to current user
+      const goal = await ctx.db.goal.findFirst({
+        where: { id: input.goalId, userId: ctx.session.user.id! },
+      });
+      if (!goal) throw new Error("Goal not found");
+
       const maxOrder = await ctx.db.goalAction.aggregate({
         where: { goalId: input.goalId },
         _max: { order: true },
@@ -161,8 +171,13 @@ export const goalRouter = createTRPCRouter({
   toggleAction: protectedProcedure
     .input(z.object({ actionId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const action = await ctx.db.goalAction.findUnique({ where: { id: input.actionId } });
-      if (!action) throw new Error("Action not found");
+      const action = await ctx.db.goalAction.findUnique({
+        where: { id: input.actionId },
+        include: { goal: { select: { userId: true } } },
+      });
+      if (!action || action.goal.userId !== ctx.session.user.id) {
+        throw new Error("Action not found");
+      }
 
       return ctx.db.goalAction.update({
         where: { id: input.actionId },
@@ -176,6 +191,14 @@ export const goalRouter = createTRPCRouter({
   deleteAction: protectedProcedure
     .input(z.object({ actionId: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      const action = await ctx.db.goalAction.findUnique({
+        where: { id: input.actionId },
+        include: { goal: { select: { userId: true } } },
+      });
+      if (!action || action.goal.userId !== ctx.session.user.id) {
+        throw new Error("Action not found");
+      }
+
       return ctx.db.goalAction.delete({ where: { id: input.actionId } });
     }),
 });

@@ -4,8 +4,9 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Clock, CalendarDays, ArrowRight } from "lucide-react";
-import { format } from "date-fns";
+import { format, getDay } from "date-fns";
 import Link from "next/link";
+import type { HabitFrequency } from "@prisma/client";
 
 const PRIORITY_LABELS = ["Normal", "High", "Urgent"];
 const PRIORITY_COLORS = ["text-muted-foreground", "text-yellow-500", "text-red-500"];
@@ -20,8 +21,20 @@ export function TodayPlan() {
     onSuccess: () => utils.dayPlan.getByDate.invalidate({ date: todayStr }),
   });
 
-  // Scheduled habits for today
-  const scheduledHabits = habits?.filter((h) => h.scheduledTime && !h.isArchived) ?? [];
+  // Scheduled habits for today — respects frequency
+  const scheduledHabits = (() => {
+    if (!habits) return [];
+    const day = getDay(new Date());
+    return habits.filter((h) => {
+      if (!h.scheduledTime || h.isArchived) return false;
+      const freq = h.frequency as HabitFrequency;
+      if (freq === "DAILY") return true;
+      if (freq === "WEEKDAYS") return day >= 1 && day <= 5;
+      if (freq === "WEEKENDS") return day === 0 || day === 6;
+      if (freq === "CUSTOM") return (h.customDays as number[]).includes(day);
+      return true;
+    });
+  })();
   const items = plan?.items ?? [];
   const completedCount = items.filter((i) => i.completed).length;
   const totalCount = items.length;

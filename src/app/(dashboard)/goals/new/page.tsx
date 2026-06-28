@@ -172,6 +172,10 @@ export default function NewGoalPage() {
               </div>
             </div>
 
+            {form.endDate && form.endDate <= form.startDate && (
+              <p className="text-xs text-destructive">End date must be after start date</p>
+            )}
+
             {/* Target */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -228,7 +232,7 @@ export default function NewGoalPage() {
 
             {/* Submit */}
             <div className="flex gap-3 pt-4">
-              <Button type="submit" disabled={!form.title || !form.endDate || createMutation.isPending}>
+              <Button type="submit" disabled={!form.title || !form.endDate || form.endDate <= form.startDate || createMutation.isPending}>
                 {createMutation.isPending ? "Creating..." : "Create Goal"}
               </Button>
               <Link href="/goals">

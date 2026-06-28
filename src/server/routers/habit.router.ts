@@ -161,6 +161,12 @@ export const habitRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const dateOnly = startOfDay(input.date);
 
+      // Verify habit belongs to current user
+      const habit = await ctx.db.habit.findFirst({
+        where: { id: input.habitId, userId: ctx.session.user.id! },
+      });
+      if (!habit) throw new Error("Habit not found");
+
       // Check if log exists
       const existing = await ctx.db.habitLog.findUnique({
         where: { habitId_date: { habitId: input.habitId, date: dateOnly } },
@@ -198,6 +204,12 @@ export const habitRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
+      // Verify habit belongs to current user
+      const habit = await ctx.db.habit.findFirst({
+        where: { id: input.habitId, userId: ctx.session.user.id! },
+      });
+      if (!habit) throw new Error("Habit not found");
+
       return ctx.db.habitLog.findMany({
         where: {
           habitId: input.habitId,

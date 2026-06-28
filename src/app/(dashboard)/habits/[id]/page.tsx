@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Sprout, Calendar, Target } from "lucide-react";
 import Link from "next/link";
-import { format, subDays, startOfDay } from "date-fns";
+import { format, subDays, startOfDay, getDay } from "date-fns";
 import { cn } from "@/lib/utils";
 
 export default function HabitDetailPage() {
@@ -27,18 +27,29 @@ export default function HabitDetailPage() {
     return <div className="text-center py-12 text-muted-foreground">Habit not found</div>;
   }
 
-  // Build calendar data from logs
+  // Build calendar data from logs, respecting frequency
+  const isScheduled = (date: Date) => {
+    const day = getDay(date);
+    if (habit.frequency === "DAILY") return true;
+    if (habit.frequency === "WEEKDAYS") return day >= 1 && day <= 5;
+    if (habit.frequency === "WEEKENDS") return day === 0 || day === 6;
+    if (habit.frequency === "CUSTOM") return (habit.customDays as number[]).includes(day);
+    return true;
+  };
+
   const last30Days = Array.from({ length: 30 }, (_, i) => {
     const date = subDays(new Date(), 29 - i);
     const dateStr = format(startOfDay(date), "yyyy-MM-dd");
     const log = habit.logs.find(
       (l) => format(startOfDay(new Date(l.date)), "yyyy-MM-dd") === dateStr
     );
-    return { date, dateStr, completed: log?.completed ?? false };
+    const scheduled = isScheduled(date);
+    return { date, dateStr, completed: log?.completed ?? false, scheduled };
   });
 
-  const completedDays = last30Days.filter((d) => d.completed).length;
-  const completionRate = Math.round((completedDays / 30) * 100);
+  const scheduledDays = last30Days.filter((d) => d.scheduled).length;
+  const completedDays = last30Days.filter((d) => d.completed && d.scheduled).length;
+  const completionRate = scheduledDays > 0 ? Math.round((completedDays / scheduledDays) * 100) : 0;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
@@ -94,7 +105,7 @@ export default function HabitDetailPage() {
             <Progress value={completionRate} />
           </div>
           <p className="text-sm text-muted-foreground">
-            {completedDays} of 30 days completed
+            {completedDays} of {scheduledDays} scheduled days completed
           </p>
         </CardContent>
       </Card>
@@ -109,10 +120,12 @@ export default function HabitDetailPage() {
             {last30Days.map((day) => (
               <div
                 key={day.dateStr}
-                title={`${format(day.date, "MMM d")} - ${day.completed ? "Done" : "Missed"}`}
+                title={`${format(day.date, "MMM d")} - ${!day.scheduled ? "Off day" : day.completed ? "Done" : "Missed"}`}
                 className={cn(
                   "aspect-square rounded-md flex items-center justify-center text-xs",
-                  day.completed
+                  !day.scheduled
+                    ? "bg-muted/30 text-muted-foreground/40"
+                    : day.completed
                     ? "bg-emerald-500 text-white"
                     : "bg-muted text-muted-foreground"
                 )}

@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
 
 export default function SettingsPage() {
   const { data: session } = useSession();
+  const { setTheme: applyTheme } = useTheme();
   const { data: settings } = trpc.user.getSettings.useQuery();
   const { data: profile } = trpc.user.getProfile.useQuery();
   const utils = trpc.useUtils();
@@ -46,7 +48,10 @@ export default function SettingsPage() {
   });
 
   const updateSettings = trpc.user.updateSettings.useMutation({
-    onSuccess: () => utils.user.getSettings.invalidate(),
+    onSuccess: () => {
+      utils.user.getSettings.invalidate();
+      applyTheme(settingsForm.theme);
+    },
   });
 
   return (
