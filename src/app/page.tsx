@@ -121,6 +121,7 @@ export default function LandingPage() {
                     <Plant
                       streak={item.streak}
                       wilted={item.wilted}
+                      phaseOffset={Math.random() * 3}
                     />
                   </div>
                   <div className="text-center">

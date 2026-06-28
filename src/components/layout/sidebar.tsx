@@ -93,7 +93,7 @@ export function Sidebar({ open, onClose }: { open?: boolean; onClose?: () => voi
                   href={item.href}
                   onClick={onClose}
                   className={cn(
-                    "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer",
+                    "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer hover:translate-x-0.5",
                     isActive
                       ? "bg-primary/10 text-primary shadow-sm"
                       : "text-muted-foreground hover:bg-accent hover:text-foreground"

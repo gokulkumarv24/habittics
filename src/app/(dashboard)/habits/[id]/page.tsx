@@ -72,21 +72,21 @@ export default function HabitDetailPage() {
 
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-4">
-        <Card>
+        <Card className={cn("card-lift", (habit.streak?.currentStreak ?? 0) >= 30 && "evergreen-shimmer")}>
           <CardContent className="p-4 text-center">
             <Sprout className="w-6 h-6 text-emerald-500 mx-auto mb-1" />
             <p className="text-2xl font-bold font-mono">{habit.streak?.currentStreak ?? 0}</p>
             <p className="text-xs text-muted-foreground">Current Streak</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="card-lift">
           <CardContent className="p-4 text-center">
             <Target className="w-6 h-6 text-primary mx-auto mb-1" />
             <p className="text-2xl font-bold font-mono">{habit.streak?.longestStreak ?? 0}</p>
             <p className="text-xs text-muted-foreground">Longest Streak</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="card-lift">
           <CardContent className="p-4 text-center">
             <Calendar className="w-6 h-6 text-emerald-500 mx-auto mb-1" />
             <p className="text-2xl font-bold font-mono">{completionRate}%</p>

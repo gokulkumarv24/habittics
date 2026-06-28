@@ -346,6 +346,211 @@
   100% { transform: scale(4); opacity: 0; }
 }
 
+/* ─── New keyframes ──────────────────────────────────────────────── */
+@keyframes holdSpin {
+  0%   { transform: rotate(0deg); border-top-color: hsl(var(--primary)); border-right-color: transparent; border-bottom-color: transparent; border-left-color: transparent; }
+  25%  { border-right-color: hsl(var(--primary)); }
+  50%  { border-bottom-color: hsl(var(--primary)); }
+  75%  { border-left-color: hsl(var(--primary)); }
+  100% { transform: rotate(360deg); border-color: hsl(var(--primary)); }
+}
+
+@keyframes rippleOut {
+  0%   { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes perkUp {
+  0%   { transform: scaleY(0.92) scaleX(1.04); }
+  40%  { transform: scaleY(1.08) scaleX(0.96); }
+  70%  { transform: scaleY(0.98) scaleX(1.01); }
+  100% { transform: scaleY(1) scaleX(1); }
+}
+
+@keyframes shakeOff {
+  0%   { transform: rotate(0); }
+  20%  { transform: rotate(-4deg); }
+  40%  { transform: rotate(3deg); }
+  60%  { transform: rotate(-2deg); }
+  80%  { transform: rotate(1deg); }
+  100% { transform: rotate(0); }
+}
+
+@keyframes particleDrift {
+  0%   { transform: translateY(100%) translateX(0); opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.4; }
+  100% { transform: translateY(-20%) translateX(20px); opacity: 0; }
+}
+
+@keyframes atmosphereShift {
+  0%   { opacity: 0.7; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+@keyframes bannerSlide {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  15%  { transform: translateY(0); opacity: 1; }
+  85%  { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-100%); opacity: 0; }
+}
+
+@keyframes milestoneGlow {
+  0%   { box-shadow: 0 0 0 0 hsl(var(--bloom) / 0.5); }
+  50%  { box-shadow: 0 0 20px 8px hsl(var(--bloom) / 0.3); }
+  100% { box-shadow: 0 0 0 0 hsl(var(--bloom) / 0); }
+}
+
+@keyframes petalFall {
+  0%   { top: -10%; opacity: 1; }
+  100% { top: 110%; opacity: 0; transform: rotate(360deg) translateX(30px); }
+}
+
+@keyframes shimmerPass {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes numberEntry {
+  0%   { transform: translateY(8px) scale(0.8); opacity: 0; }
+  60%  { transform: translateY(-2px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes cardFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-4px) rotate(0.3deg); }
+}
+
+/* ─── Water ritual ───────────────────────────────────────────────── */
+.water-hold-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  border-top-color: hsl(var(--primary));
+  opacity: 0;
+  pointer-events: none;
+}
+.water-hold-ring.filling {
+  opacity: 1;
+  animation: holdSpin 600ms linear forwards;
+}
+.water-ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid hsl(var(--primary) / 0.35);
+  pointer-events: none;
+  animation: rippleOut 600ms ease-out forwards;
+}
+.water-ripple:nth-child(2) {
+  animation-delay: 120ms;
+}
+.plant-perk {
+  animation: perkUp 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: bottom center;
+}
+.plant-shake {
+  animation: shakeOff 400ms ease;
+  transform-origin: bottom center;
+}
+
+/* ─── Floating particles ─────────────────────────────────────────── */
+.greenhouse-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.greenhouse-particles span {
+  position: absolute;
+  border-radius: 9999px;
+  background: hsl(var(--primary) / 0.15);
+  animation: particleDrift linear infinite;
+}
+.greenhouse-particles span:nth-child(1) { width: 4px; height: 4px; left: 15%; animation-duration: 18s; animation-delay: 0s; }
+.greenhouse-particles span:nth-child(2) { width: 3px; height: 3px; left: 40%; animation-duration: 22s; animation-delay: 4s; }
+.greenhouse-particles span:nth-child(3) { width: 5px; height: 5px; left: 65%; animation-duration: 20s; animation-delay: 8s; }
+.greenhouse-particles span:nth-child(4) { width: 3px; height: 3px; left: 85%; animation-duration: 24s; animation-delay: 2s; }
+.greenhouse-particles span:nth-child(5) { width: 4px; height: 4px; left: 30%; animation-duration: 19s; animation-delay: 10s; }
+
+/* ─── Atmosphere ─────────────────────────────────────────────────── */
+.greenhouse-atmosphere {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 20%, hsl(142 76% 36% / 0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, hsl(43 96% 56% / 0.03) 0%, transparent 70%);
+  animation: atmosphereShift 30s ease-in-out infinite alternate;
+}
+
+/* ─── Time-of-day theming ────────────────────────────────────────── */
+[data-period="dawn"] {
+  --background: 80 25% 97%;
+  --primary: 142 70% 38%;
+  --muted: 80 18% 93%;
+}
+[data-period="dawn"] .greenhouse-atmosphere {
+  background:
+    radial-gradient(ellipse 60% 50% at 30% 10%, hsl(35 90% 60% / 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 70% 80%, hsl(142 76% 36% / 0.04) 0%, transparent 70%);
+}
+[data-period="dusk"] {
+  --primary: 160 60% 40%;
+  --muted: 180 12% 92%;
+}
+[data-period="dusk"] .greenhouse-atmosphere {
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 20%, hsl(200 40% 40% / 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 20% 70%, hsl(160 60% 40% / 0.04) 0%, transparent 70%);
+}
+.dark[data-period="dawn"] {
+  --background: 140 20% 5%;
+  --primary: 142 65% 55%;
+}
+.dark[data-period="dusk"] {
+  --background: 180 18% 4%;
+  --primary: 170 55% 50%;
+}
+
+/* ─── Milestone celebrations ─────────────────────────────────────── */
+.milestone-banner {
+  animation: bannerSlide 3.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.milestone-glow {
+  animation: milestoneGlow 1.5s ease-out forwards;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+.golden-petals span {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50% 50% 50% 0;
+  background: hsl(var(--bloom) / 0.6);
+  animation: petalFall 2.5s ease-in forwards;
+}
+.golden-petals span:nth-child(1) { left: 20%; animation-delay: 0.1s; transform: rotate(45deg); }
+.golden-petals span:nth-child(2) { left: 40%; animation-delay: 0.4s; transform: rotate(90deg); }
+.golden-petals span:nth-child(3) { left: 60%; animation-delay: 0.2s; transform: rotate(135deg); }
+.golden-petals span:nth-child(4) { left: 80%; animation-delay: 0.6s; transform: rotate(180deg); }
+.golden-petals span:nth-child(5) { left: 50%; animation-delay: 0.3s; transform: rotate(60deg); }
+.evergreen-shimmer {
+  background: linear-gradient(90deg, transparent 0%, hsl(var(--bloom) / 0.15) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmerPass 3s ease-in-out infinite;
+}
+
+/* ─── Animated number counter ────────────────────────────────────── */
+.number-pop {
+  animation: numberEntry 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* ─── Reduced motion ─────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

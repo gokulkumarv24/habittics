@@ -21,7 +21,7 @@ export function WeeklyChart() {
   }
 
   return (
-    <Card>
+    <Card className="card-lift">
       <CardHeader>
         <CardTitle className="text-lg">Weekly Growth</CardTitle>
       </CardHeader>

@@ -42,7 +42,7 @@ export function TodayPlan() {
   const hasContent = items.length > 0 || scheduledHabits.length > 0 || plan?.note;
 
   return (
-    <Card>
+    <Card className="card-lift">
       <CardHeader className="pb-3 flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2 text-base">
           <CalendarDays className="w-5 h-5 text-primary" />

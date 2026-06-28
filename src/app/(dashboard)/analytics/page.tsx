@@ -25,25 +25,25 @@ export default function AnalyticsPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card className="card-lift">
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">30-Day Rate</p>
             <p className="text-3xl font-bold font-mono mt-1">{completionRate?.rate ?? 0}%</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="card-lift">
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Completed</p>
             <p className="text-3xl font-bold font-mono mt-1">{completionRate?.completed ?? 0}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="card-lift">
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Total Tracked</p>
             <p className="text-3xl font-bold font-mono mt-1">{completionRate?.total ?? 0}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="card-lift">
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Active Goals</p>
             <p className="text-3xl font-bold font-mono mt-1">{dailyStats?.activeGoals ?? 0}</p>
@@ -54,7 +54,7 @@ export default function AnalyticsPage() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Weekly Completion Chart */}
-        <Card>
+        <Card className="card-lift">
           <CardHeader>
             <CardTitle className="text-lg">Weekly Completion</CardTitle>
           </CardHeader>
@@ -74,7 +74,7 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* Category Breakdown */}
-        <Card>
+        <Card className="card-lift">
           <CardHeader>
             <CardTitle className="text-lg">By Category</CardTitle>
           </CardHeader>
@@ -109,7 +109,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Top Streaks */}
-      <Card>
+      <Card className="card-lift">
         <CardHeader>
           <CardTitle className="text-lg">Top Streaks</CardTitle>
         </CardHeader>

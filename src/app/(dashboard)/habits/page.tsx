@@ -57,14 +57,14 @@ export default function HabitsPage() {
               <Card
                 key={habit.id}
                 className={cn(
-                  "relative group overflow-hidden transition-all duration-300 hover:shadow-lg",
+                  "relative group overflow-hidden card-lift",
                   isCompleted && "ring-1 ring-primary/20 bg-primary/[0.03]"
                 )}
               >
                 <CardContent className="p-4 flex flex-col items-center text-center">
                   {/* Plant visualization */}
-                  <div className="w-20 h-24 mb-3">
-                    <Plant streak={streak} wilted={isWilted} />
+                  <div className="w-20 h-24 mb-3 transition-transform duration-300 group-hover:scale-110">
+                    <Plant streak={streak} wilted={isWilted} phaseOffset={Math.random() * 3} />
                   </div>
 
                   {/* Habit name */}

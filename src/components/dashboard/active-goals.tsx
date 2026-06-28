@@ -26,7 +26,7 @@ export function ActiveGoals() {
   }
 
   return (
-    <Card>
+    <Card className="card-lift">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg">Active Goals</CardTitle>
         <Link href="/goals" className="text-sm text-primary hover:underline">
@@ -47,7 +47,7 @@ export function ActiveGoals() {
               <Link
                 key={goal.id}
                 href={`/goals/${goal.id}`}
-                className="block p-3 rounded-lg border hover:shadow-sm transition-shadow"
+                className="block p-3 rounded-lg border hover:shadow-sm hover:border-primary/20 transition-all"
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium truncate">{goal.title}</span>

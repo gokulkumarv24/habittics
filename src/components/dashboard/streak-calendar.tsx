@@ -29,7 +29,7 @@ export function StreakCalendar() {
   const maxCount = Math.max(...Object.values(heatmap || {}), 1);
 
   return (
-    <Card>
+    <Card className="card-lift">
       <CardHeader>
         <CardTitle className="text-lg">Growth Calendar</CardTitle>
       </CardHeader>

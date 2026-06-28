@@ -7,6 +7,9 @@ interface PlantProps {
   wilted?: boolean;
   className?: string;
   animated?: boolean;
+  phaseOffset?: number;
+  perkAnimation?: boolean;
+  shakeAnimation?: boolean;
 }
 
 function getStage(streak: number): number {
@@ -18,7 +21,7 @@ function getStage(streak: number): number {
   return 5;
 }
 
-export function Plant({ streak, wilted = false, className, animated = true }: PlantProps) {
+export function Plant({ streak, wilted = false, className, animated = true, phaseOffset = 0, perkAnimation = false, shakeAnimation = false }: PlantProps) {
   const stage = getStage(streak);
   const green = wilted ? "hsl(var(--drought))" : "hsl(var(--primary))";
   const soil = "hsl(var(--muted-foreground) / 0.2)";
@@ -30,8 +33,11 @@ export function Plant({ streak, wilted = false, className, animated = true }: Pl
         "relative inline-flex",
         animated && !wilted && stage > 0 && "animate-sway",
         wilted && "plant-wilted",
+        perkAnimation && "plant-perk",
+        shakeAnimation && "plant-shake",
         className
       )}
+      style={animated && phaseOffset ? { animationDelay: `${phaseOffset}s` } : undefined}
     >
       <svg
         viewBox="0 0 64 80"
