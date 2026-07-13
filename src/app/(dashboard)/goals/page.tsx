@@ -99,6 +99,15 @@ export default function GoalsPage() {
                                 {goal.currentValue} / {goal.targetValue} {goal.unit}
                               </p>
                             )}
+                            {goal.linkedHabit && (
+                              <p className="text-xs mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                <span
+                                  className="w-1.5 h-1.5 rounded-full"
+                                  style={{ backgroundColor: goal.linkedHabit.color }}
+                                />
+                                Auto-tracked by &ldquo;{goal.linkedHabit.title}&rdquo;
+                              </p>
+                            )}
                             {goal.actions.length > 0 && (
                               <p className="text-xs text-muted-foreground mt-2">
                                 {goal.actions.filter((a) => a.completed).length}/{goal.actions.length} actions completed

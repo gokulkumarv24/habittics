@@ -41,6 +41,44 @@ export const userRouter = createTRPCRouter({
     return settings;
   }),
 
+  /** Full account data export — habits, logs, goals, plans, categories, settings. */
+  exportData: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id!;
+    const [profile, habits, goals, dayPlans, categories, settings] = await Promise.all([
+      ctx.db.user.findUnique({
+        where: { id: userId },
+        select: { name: true, email: true, createdAt: true },
+      }),
+      ctx.db.habit.findMany({
+        where: { userId },
+        include: { logs: { orderBy: { date: "asc" } }, streak: true, category: true },
+        orderBy: { order: "asc" },
+      }),
+      ctx.db.goal.findMany({
+        where: { userId },
+        include: { actions: { orderBy: { order: "asc" } }, category: true },
+        orderBy: { createdAt: "asc" },
+      }),
+      ctx.db.dayPlan.findMany({
+        where: { userId },
+        include: { items: { orderBy: { order: "asc" } } },
+        orderBy: { date: "asc" },
+      }),
+      ctx.db.category.findMany({ where: { userId }, orderBy: { order: "asc" } }),
+      ctx.db.userSettings.findUnique({ where: { userId } }),
+    ]);
+
+    return {
+      exportedAt: new Date().toISOString(),
+      profile,
+      habits,
+      goals,
+      dayPlans,
+      categories,
+      settings,
+    };
+  }),
+
   updateSettings: protectedProcedure
     .input(
       z.object({

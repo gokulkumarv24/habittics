@@ -1,27 +1,21 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
-import { startOfDay, getDay } from "date-fns";
-import type { HabitFrequency } from "@prisma/client";
+import {
+  DATE_KEY_REGEX,
+  dateKeyToUtcDate,
+  utcDateToKey,
+  localDateKey,
+  type DateKey,
+} from "@/lib/dates";
+import {
+  computeStreak,
+  isScheduledOnKey,
+  milestoneReached,
+  type Frequency,
+} from "@/lib/streak";
 
-function isHabitScheduledForDate(
-  frequency: HabitFrequency,
-  customDays: number[],
-  date: Date
-): boolean {
-  const jsDay = getDay(date); // 0=Sun, 1=Mon, ..., 6=Sat
-  switch (frequency) {
-    case "DAILY":
-      return true;
-    case "WEEKDAYS":
-      return jsDay >= 1 && jsDay <= 5;
-    case "WEEKENDS":
-      return jsDay === 0 || jsDay === 6;
-    case "CUSTOM":
-      return customDays.includes(jsDay);
-    default:
-      return true;
-  }
-}
+const dateKeySchema = z.string().regex(DATE_KEY_REGEX, "Expected yyyy-MM-dd");
 
 export const habitRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -30,11 +24,13 @@ export const habitRouter = createTRPCRouter({
         includeArchived: z.boolean().default(false),
         categoryId: z.string().optional(),
         todayOnly: z.boolean().default(false),
+        // The client's local calendar date; falls back to the server's.
+        dateKey: dateKeySchema.optional(),
       }).optional()
     )
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id!;
-      const today = new Date();
+      const todayKey = input?.dateKey ?? localDateKey();
       const habits = await ctx.db.habit.findMany({
         where: {
           userId,
@@ -45,7 +41,7 @@ export const habitRouter = createTRPCRouter({
           category: true,
           streak: true,
           logs: {
-            where: { date: startOfDay(today) },
+            where: { date: dateKeyToUtcDate(todayKey) },
             take: 1,
           },
         },
@@ -54,7 +50,7 @@ export const habitRouter = createTRPCRouter({
 
       if (input?.todayOnly) {
         return habits.filter((h) =>
-          isHabitScheduledForDate(h.frequency, h.customDays, today)
+          isScheduledOnKey(h.frequency as Frequency, h.customDays, todayKey)
         );
       }
       return habits;
@@ -71,7 +67,7 @@ export const habitRouter = createTRPCRouter({
           logs: { orderBy: { date: "desc" }, take: 90 },
         },
       });
-      if (!habit) throw new Error("Habit not found");
+      if (!habit) throw new TRPCError({ code: "NOT_FOUND", message: "Habit not found" });
       return habit;
     }),
 
@@ -153,23 +149,25 @@ export const habitRouter = createTRPCRouter({
     .input(
       z.object({
         habitId: z.string(),
-        date: z.date(),
+        // The user's local calendar date being toggled (may be a past day).
+        dateKey: dateKeySchema,
+        // The user's actual "today" — anchors streak calculation on backfills.
+        todayKey: dateKeySchema.optional(),
         value: z.number().optional(),
         note: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const dateOnly = startOfDay(input.date);
+      const userId = ctx.session.user.id!;
+      const date = dateKeyToUtcDate(input.dateKey);
 
-      // Verify habit belongs to current user
       const habit = await ctx.db.habit.findFirst({
-        where: { id: input.habitId, userId: ctx.session.user.id! },
+        where: { id: input.habitId, userId },
       });
-      if (!habit) throw new Error("Habit not found");
+      if (!habit) throw new TRPCError({ code: "NOT_FOUND", message: "Habit not found" });
 
-      // Check if log exists
       const existing = await ctx.db.habitLog.findUnique({
-        where: { habitId_date: { habitId: input.habitId, date: dateOnly } },
+        where: { habitId_date: { habitId: input.habitId, date } },
       });
 
       let log;
@@ -182,7 +180,7 @@ export const habitRouter = createTRPCRouter({
         log = await ctx.db.habitLog.create({
           data: {
             habitId: input.habitId,
-            date: dateOnly,
+            date,
             completed: true,
             value: input.value ?? 1,
             note: input.note,
@@ -190,8 +188,34 @@ export const habitRouter = createTRPCRouter({
         });
       }
 
-      // Update streak
-      const streak = await updateStreak(ctx.db, input.habitId);
+      const previousStreak = (
+        await ctx.db.habitStreak.findUnique({ where: { habitId: input.habitId } })
+      )?.currentStreak ?? 0;
+
+      // Streaks are measured from the user's real today, not the day being
+      // (back)filled; without a client todayKey fall back to the later of the
+      // toggled day and the server's local date.
+      const serverToday = localDateKey();
+      const anchorKey =
+        input.todayKey ?? (input.dateKey > serverToday ? input.dateKey : serverToday);
+      const streak = await updateStreak(ctx.db, input.habitId, anchorKey);
+
+      // Streak milestone notification
+      const milestone = milestoneReached(previousStreak, streak.currentStreak);
+      if (log.completed && milestone) {
+        await ctx.db.notification.create({
+          data: {
+            userId,
+            type: "STREAK_MILESTONE",
+            title: `${milestone}-day streak!`,
+            message: `"${habit.title}" has a ${milestone}-day streak. Keep it growing!`,
+          },
+        });
+      }
+
+      // Auto-progress goals linked to this habit
+      await applyLinkedGoalProgress(ctx.db, userId, habit, log.completed, input.dateKey);
+
       return { log, streak };
     }),
 
@@ -199,65 +223,53 @@ export const habitRouter = createTRPCRouter({
     .input(
       z.object({
         habitId: z.string(),
-        startDate: z.date(),
-        endDate: z.date(),
+        startKey: dateKeySchema,
+        endKey: dateKeySchema,
       })
     )
     .query(async ({ ctx, input }) => {
-      // Verify habit belongs to current user
       const habit = await ctx.db.habit.findFirst({
         where: { id: input.habitId, userId: ctx.session.user.id! },
       });
-      if (!habit) throw new Error("Habit not found");
+      if (!habit) throw new TRPCError({ code: "NOT_FOUND", message: "Habit not found" });
 
       return ctx.db.habitLog.findMany({
         where: {
           habitId: input.habitId,
-          date: { gte: input.startDate, lte: input.endDate },
+          date: {
+            gte: dateKeyToUtcDate(input.startKey),
+            lte: dateKeyToUtcDate(input.endKey),
+          },
         },
         orderBy: { date: "asc" },
       });
     }),
 });
 
-async function updateStreak(db: any, habitId: string) {
+type DbClient = typeof import("@/server/db/client").db;
+
+async function updateStreak(db: DbClient, habitId: string, todayKey: DateKey) {
   const habit = await db.habit.findUnique({
     where: { id: habitId },
     select: { frequency: true, customDays: true },
   });
+  if (!habit) throw new TRPCError({ code: "NOT_FOUND", message: "Habit not found" });
 
   const logs = await db.habitLog.findMany({
     where: { habitId, completed: true },
     orderBy: { date: "desc" },
-    take: 365,
+    take: 400,
+    select: { date: true },
   });
 
-  const completedDates = new Set(
-    logs.map((l: any) => startOfDay(new Date(l.date)).getTime())
-  );
+  const completedKeys = new Set(logs.map((l) => utcDateToKey(new Date(l.date))));
 
-  let currentStreak = 0;
-  const today = startOfDay(new Date());
-  const checkDate = new Date(today);
-
-  // Walk backwards day by day, skipping non-scheduled days
-  for (let i = 0; i < 400; i++) {
-    const d = new Date(checkDate);
-    d.setDate(d.getDate() - i);
-    const dayStart = startOfDay(d);
-
-    if (!isHabitScheduledForDate(habit.frequency, habit.customDays, dayStart)) {
-      continue; // skip non-scheduled days (e.g. weekends for WEEKDAYS habits)
-    }
-
-    if (completedDates.has(dayStart.getTime())) {
-      currentStreak++;
-    } else {
-      // Today is allowed to be incomplete without breaking streak
-      if (i === 0) continue;
-      break;
-    }
-  }
+  const { currentStreak } = computeStreak({
+    completedKeys,
+    todayKey,
+    frequency: habit.frequency as Frequency,
+    customDays: habit.customDays,
+  });
 
   const existing = await db.habitStreak.findUnique({ where: { habitId } });
   const longestStreak = Math.max(currentStreak, existing?.longestStreak ?? 0);
@@ -271,4 +283,52 @@ async function updateStreak(db: any, habitId: string) {
     },
     create: { habitId, currentStreak, longestStreak },
   });
+}
+
+/**
+ * When a habit completion is toggled, adjust progress on any active goal
+ * linked to that habit (one completion = +1 progress) and auto-complete
+ * goals that reach their target.
+ */
+async function applyLinkedGoalProgress(
+  db: DbClient,
+  userId: string,
+  habit: { id: string; title: string },
+  completed: boolean,
+  dateKey: DateKey
+) {
+  const day = dateKeyToUtcDate(dateKey);
+  const goals = await db.goal.findMany({
+    where: {
+      userId,
+      linkedHabitId: habit.id,
+      status: { in: ["NOT_STARTED", "IN_PROGRESS"] },
+      startDate: { lte: new Date(`${dateKey}T23:59:59.999Z`) },
+      endDate: { gte: day },
+    },
+  });
+
+  for (const goal of goals) {
+    const nextValue = Math.max(0, goal.currentValue + (completed ? 1 : -1));
+    const reachedTarget = goal.targetValue != null && nextValue >= goal.targetValue;
+
+    await db.goal.update({
+      where: { id: goal.id },
+      data: {
+        currentValue: nextValue,
+        status: reachedTarget ? "COMPLETED" : "IN_PROGRESS",
+      },
+    });
+
+    if (reachedTarget) {
+      await db.notification.create({
+        data: {
+          userId,
+          type: "GOAL_COMPLETED",
+          title: "Goal completed!",
+          message: `"${goal.title}" reached its target of ${goal.targetValue}${goal.unit ? ` ${goal.unit}` : ""} — powered by your "${habit.title}" habit.`,
+        },
+      });
+    }
+  }
 }

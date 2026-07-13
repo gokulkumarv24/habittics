@@ -7,15 +7,18 @@ import { Plus, Droplet, Archive } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Plant, getGrowthLabel } from "@/components/garden/plant";
+import { localDateKey } from "@/lib/dates";
 
 export default function HabitsPage() {
-  const { data: habits, isLoading } = trpc.habit.getAll.useQuery();
+  const { data: habits, isLoading } = trpc.habit.getAll.useQuery({ dateKey: localDateKey() });
   const utils = trpc.useUtils();
 
   const toggleMutation = trpc.habit.toggleComplete.useMutation({
     onSuccess: () => {
       utils.habit.getAll.invalidate();
-      utils.analytics.getDailyStats.invalidate();
+      utils.analytics.invalidate();
+      utils.goal.getAll.invalidate();
+      utils.notification.invalidate();
     },
   });
 
@@ -114,7 +117,8 @@ export default function HabitsPage() {
                     onClick={() =>
                       toggleMutation.mutate({
                         habitId: habit.id,
-                        date: new Date(),
+                        dateKey: localDateKey(),
+                        todayKey: localDateKey(),
                       })
                     }
                     disabled={toggleMutation.isPending}

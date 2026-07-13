@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent } from "@/components/ui/card";
 import { Droplets, Sprout, TrendingUp, Flower2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { localDateKey } from "@/lib/dates";
 
 function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
   const [display, setDisplay] = useState(0);
@@ -36,7 +37,9 @@ function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string
 }
 
 export function StatsOverview() {
-  const { data: stats, isLoading } = trpc.analytics.getDailyStats.useQuery();
+  const { data: stats, isLoading } = trpc.analytics.getDailyStats.useQuery({
+    dateKey: localDateKey(),
+  });
 
   if (isLoading) {
     return (

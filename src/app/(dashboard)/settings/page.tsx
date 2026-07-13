@@ -8,6 +8,30 @@ import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
+import { Download, BellRing } from "lucide-react";
+
+function downloadFile(filename: string, content: string, mime: string) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function toCsv(rows: Record<string, unknown>[]): string {
+  if (rows.length === 0) return "";
+  const headers = Object.keys(rows[0]);
+  const escape = (v: unknown) => {
+    const s = v == null ? "" : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  return [
+    headers.join(","),
+    ...rows.map((r) => headers.map((h) => escape(r[h])).join(",")),
+  ].join("\n");
+}
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -53,6 +77,51 @@ export default function SettingsPage() {
       applyTheme(settingsForm.theme);
     },
   });
+
+  const [notifPermission, setNotifPermission] = useState<string>("default");
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setNotifPermission(Notification.permission);
+    }
+  }, []);
+
+  const requestNotificationPermission = async () => {
+    if (!("Notification" in window)) return;
+    const result = await Notification.requestPermission();
+    setNotifPermission(result);
+  };
+
+  const exportQuery = trpc.user.exportData.useQuery(undefined, { enabled: false });
+
+  const handleExportJson = async () => {
+    const { data } = await exportQuery.refetch();
+    if (!data) return;
+    downloadFile(
+      `habitflow-export-${new Date().toISOString().slice(0, 10)}.json`,
+      JSON.stringify(data, null, 2),
+      "application/json"
+    );
+  };
+
+  const handleExportCsv = async () => {
+    const { data } = await exportQuery.refetch();
+    if (!data) return;
+    const rows = data.habits.flatMap((habit) =>
+      habit.logs.map((log) => ({
+        habit: habit.title,
+        category: habit.category?.name ?? "",
+        date: new Date(log.date).toISOString().slice(0, 10),
+        completed: log.completed,
+        value: log.value,
+        note: log.note ?? "",
+      }))
+    );
+    downloadFile(
+      `habitflow-logs-${new Date().toISOString().slice(0, 10)}.csv`,
+      toCsv(rows),
+      "text/csv"
+    );
+  };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
@@ -167,12 +236,50 @@ export default function SettingsPage() {
             </label>
           </div>
 
+          {settingsForm.pushNotify && notifPermission !== "granted" && (
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40">
+              <BellRing className="w-4 h-4 text-amber-600 shrink-0" />
+              <p className="text-xs flex-1">
+                {notifPermission === "denied"
+                  ? "Browser notifications are blocked — enable them in your browser's site settings to receive habit reminders."
+                  : "Allow browser notifications so habit reminders can reach you."}
+              </p>
+              {notifPermission === "default" && (
+                <Button size="sm" variant="outline" onClick={requestNotificationPermission}>
+                  Enable
+                </Button>
+              )}
+            </div>
+          )}
+
           <Button
             onClick={() => updateSettings.mutate(settingsForm)}
             disabled={updateSettings.isPending}
           >
             {updateSettings.isPending ? "Saving..." : "Save Preferences"}
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Data Export */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Data</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Download everything you&apos;ve tracked — habits, logs, goals, day plans, and settings.
+          </p>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={handleExportJson} disabled={exportQuery.isFetching}>
+              <Download className="w-4 h-4 mr-2" />
+              Export JSON
+            </Button>
+            <Button variant="outline" onClick={handleExportCsv} disabled={exportQuery.isFetching}>
+              <Download className="w-4 h-4 mr-2" />
+              Export Logs CSV
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

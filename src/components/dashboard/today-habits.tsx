@@ -6,30 +6,14 @@ import { Droplet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Plant, getGrowthLabel } from "@/components/garden/plant";
 import { useState, useRef, useCallback, useMemo } from "react";
-import { getDay } from "date-fns";
-import type { HabitFrequency } from "@prisma/client";
+import { localDateKey } from "@/lib/dates";
+import { isScheduledOnKey, type Frequency } from "@/lib/streak";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/trpc/router";
 
 type HabitWithRelations = inferRouterOutputs<AppRouter>["habit"]["getAll"][number];
 
 const HOLD_DURATION = 600;
-
-function isScheduledToday(frequency: string, customDays: number[]): boolean {
-  const jsDay = getDay(new Date());
-  switch (frequency) {
-    case "DAILY":
-      return true;
-    case "WEEKDAYS":
-      return jsDay >= 1 && jsDay <= 5;
-    case "WEEKENDS":
-      return jsDay === 0 || jsDay === 6;
-    case "CUSTOM":
-      return customDays.includes(jsDay);
-    default:
-      return true;
-  }
-}
 
 function HabitRow({
   habit,
@@ -172,28 +156,47 @@ function HabitRow({
 }
 
 export function TodayHabits() {
-  const { data: allHabits, isLoading } = trpc.habit.getAll.useQuery();
+  const todayKey = localDateKey();
+  const { data: allHabits, isLoading } = trpc.habit.getAll.useQuery({ dateKey: todayKey });
   const utils = trpc.useUtils();
   const toggleMutation = trpc.habit.toggleComplete.useMutation({
     onSuccess: () => {
       utils.habit.getAll.invalidate();
-      utils.analytics.getDailyStats.invalidate();
+      utils.analytics.invalidate();
+      utils.goal.getAll.invalidate();
+      utils.notification.invalidate();
     },
   });
 
   const habits = useMemo(() => {
     if (!allHabits) return [];
     return allHabits.filter((h) =>
-      isScheduledToday(h.frequency as HabitFrequency, h.customDays as number[])
+      isScheduledOnKey(h.frequency as Frequency, h.customDays as number[], todayKey)
     );
-  }, [allHabits]);
+  }, [allHabits, todayKey]);
 
   const handleToggle = useCallback(
     (habitId: string) => {
-      toggleMutation.mutate({ habitId, date: new Date() });
+      const key = localDateKey();
+      toggleMutation.mutate({ habitId, dateKey: key, todayKey: key });
     },
     [toggleMutation]
   );
+
+  const [wateringAll, setWateringAll] = useState(false);
+  const waterAll = useCallback(async () => {
+    const remaining = habits.filter((h) => !(h.logs.length > 0 && h.logs[0].completed));
+    if (remaining.length === 0) return;
+    setWateringAll(true);
+    try {
+      for (const habit of remaining) {
+        const key = localDateKey();
+        await toggleMutation.mutateAsync({ habitId: habit.id, dateKey: key, todayKey: key });
+      }
+    } finally {
+      setWateringAll(false);
+    }
+  }, [habits, toggleMutation]);
 
   if (isLoading) {
     return (
@@ -233,6 +236,18 @@ export function TodayHabits() {
             <span className="text-xs font-mono font-medium text-muted-foreground tabular-nums">
               {done}/{total}
             </span>
+            {done < total && (
+              <button
+                type="button"
+                onClick={waterAll}
+                disabled={wateringAll || toggleMutation.isPending}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors disabled:opacity-50"
+                title="Mark all remaining habits as done"
+              >
+                <Droplet className="w-3 h-3" />
+                {wateringAll ? "Watering…" : "Water all"}
+              </button>
+            )}
           </div>
         )}
       </CardHeader>

@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { Toaster } from "sonner";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { ReminderScheduler } from "@/components/providers/reminder-scheduler";
+import { ServiceWorkerRegistration } from "@/components/providers/service-worker";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -20,6 +23,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
       <BottomNav />
+      <Toaster position="top-center" richColors closeButton />
+      <ReminderScheduler />
+      <ServiceWorkerRegistration />
     </div>
   );
 }

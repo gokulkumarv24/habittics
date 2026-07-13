@@ -3,15 +3,15 @@
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { subDays, format, startOfDay } from "date-fns";
+import { localDateKey, addDaysToKey } from "@/lib/dates";
 
 export function StreakCalendar() {
-  const { data: heatmap, isLoading } = trpc.analytics.getMonthlyHeatmap.useQuery();
-
-  const days = Array.from({ length: 84 }, (_, i) => {
-    const date = subDays(new Date(), 83 - i);
-    return format(startOfDay(date), "yyyy-MM-dd");
+  const todayKey = localDateKey();
+  const { data: heatmap, isLoading } = trpc.analytics.getMonthlyHeatmap.useQuery({
+    dateKey: todayKey,
   });
+
+  const days = Array.from({ length: 84 }, (_, i) => addDaysToKey(todayKey, -(83 - i)));
 
   if (isLoading) {
     return (

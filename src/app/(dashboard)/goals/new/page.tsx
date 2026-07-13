@@ -15,6 +15,7 @@ export default function NewGoalPage() {
   const utils = trpc.useUtils();
   const { data: categories } = trpc.category.getAll.useQuery();
   const { data: existingGoals } = trpc.goal.getAll.useQuery();
+  const { data: habits } = trpc.habit.getAll.useQuery();
 
   const [form, setForm] = useState({
     title: "",
@@ -27,6 +28,7 @@ export default function NewGoalPage() {
     color: "#8b5cf6",
     categoryId: "",
     parentGoalId: "",
+    linkedHabitId: "",
   });
 
   const [actions, setActions] = useState<{ title: string }[]>([]);
@@ -52,6 +54,7 @@ export default function NewGoalPage() {
       color: form.color,
       categoryId: form.categoryId || undefined,
       parentGoalId: form.parentGoalId || undefined,
+      linkedHabitId: form.linkedHabitId || undefined,
       actions: actions.length > 0 ? actions : undefined,
     });
   };
@@ -147,6 +150,26 @@ export default function NewGoalPage() {
                 </select>
               </div>
             )}
+
+            {/* Linked Habit */}
+            <div className="space-y-2">
+              <Label>Linked Habit (optional)</Label>
+              <select
+                className="w-full h-10 px-3 rounded-md border bg-background text-sm"
+                value={form.linkedHabitId}
+                onChange={(e) => setForm({ ...form, linkedHabitId: e.target.value })}
+              >
+                <option value="">None — track progress manually</option>
+                {habits?.map((h) => (
+                  <option key={h.id} value={h.id}>{h.title}</option>
+                ))}
+              </select>
+              {form.linkedHabitId && (
+                <p className="text-xs text-muted-foreground">
+                  Each completion of this habit automatically adds +1 to the goal&apos;s progress.
+                </p>
+              )}
+            </div>
 
             {/* Dates */}
             <div className="grid grid-cols-2 gap-4">

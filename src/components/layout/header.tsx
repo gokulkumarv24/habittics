@@ -1,9 +1,10 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
-import { Moon, Sun, LogOut, User, Menu, Bell } from "lucide-react";
+import { Moon, Sun, LogOut, User, Menu } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
+import { NotificationsBell } from "@/components/layout/notifications-bell";
 
 export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const { data: session } = useSession();
@@ -27,15 +28,7 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
 
       {/* Right actions */}
       <div className="flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="w-9 h-9 rounded-xl hover:bg-accent relative"
-          aria-label="Notifications"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary shadow-glow-sm" />
-        </Button>
+        <NotificationsBell />
 
         <Button
           variant="ghost"

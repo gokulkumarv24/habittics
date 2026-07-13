@@ -12,11 +12,12 @@ import { useSession } from "next-auth/react";
 import { format } from "date-fns";
 import { trpc } from "@/lib/trpc";
 import { Plant } from "@/components/garden/plant";
+import { localDateKey } from "@/lib/dates";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
   const firstName = session?.user?.name?.split(" ")[0] || "there";
-  const { data: habits } = trpc.habit.getAll.useQuery();
+  const { data: habits } = trpc.habit.getAll.useQuery({ dateKey: localDateKey() });
 
   const topStreak = habits
     ?.filter((h) => (h.streak?.currentStreak ?? 0) > 0)

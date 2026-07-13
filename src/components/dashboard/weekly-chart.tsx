@@ -4,8 +4,12 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 
+import { localDateKey } from "@/lib/dates";
+
 export function WeeklyChart() {
-  const { data: weeklyStats, isLoading } = trpc.analytics.getWeeklyStats.useQuery();
+  const { data: weeklyStats, isLoading } = trpc.analytics.getWeeklyStats.useQuery({
+    dateKey: localDateKey(),
+  });
 
   if (isLoading) {
     return (

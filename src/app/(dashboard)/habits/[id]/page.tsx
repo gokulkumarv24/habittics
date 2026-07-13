@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Sprout, Calendar, Target } from "lucide-react";
 import Link from "next/link";
-import { format, subDays, startOfDay, getDay } from "date-fns";
 import { cn } from "@/lib/utils";
+import { addDaysToKey, dateKeyToUtcDate, localDateKey, utcDateToKey } from "@/lib/dates";
+import { isScheduledOnKey, type Frequency } from "@/lib/streak";
 
 export default function HabitDetailPage() {
   const params = useParams();
@@ -27,24 +28,17 @@ export default function HabitDetailPage() {
     return <div className="text-center py-12 text-muted-foreground">Habit not found</div>;
   }
 
-  // Build calendar data from logs, respecting frequency
-  const isScheduled = (date: Date) => {
-    const day = getDay(date);
-    if (habit.frequency === "DAILY") return true;
-    if (habit.frequency === "WEEKDAYS") return day >= 1 && day <= 5;
-    if (habit.frequency === "WEEKENDS") return day === 0 || day === 6;
-    if (habit.frequency === "CUSTOM") return (habit.customDays as number[]).includes(day);
-    return true;
-  };
-
+  const todayKey = localDateKey();
   const last30Days = Array.from({ length: 30 }, (_, i) => {
-    const date = subDays(new Date(), 29 - i);
-    const dateStr = format(startOfDay(date), "yyyy-MM-dd");
-    const log = habit.logs.find(
-      (l) => format(startOfDay(new Date(l.date)), "yyyy-MM-dd") === dateStr
+    const dateStr = addDaysToKey(todayKey, -(29 - i));
+    // Stored dates are UTC midnight of the calendar date — compare via UTC key
+    const log = habit.logs.find((l) => utcDateToKey(new Date(l.date)) === dateStr);
+    const scheduled = isScheduledOnKey(
+      habit.frequency as Frequency,
+      habit.customDays as number[],
+      dateStr
     );
-    const scheduled = isScheduled(date);
-    return { date, dateStr, completed: log?.completed ?? false, scheduled };
+    return { date: dateKeyToUtcDate(dateStr), dateStr, completed: log?.completed ?? false, scheduled };
   });
 
   const scheduledDays = last30Days.filter((d) => d.scheduled).length;
@@ -120,7 +114,7 @@ export default function HabitDetailPage() {
             {last30Days.map((day) => (
               <div
                 key={day.dateStr}
-                title={`${format(day.date, "MMM d")} - ${!day.scheduled ? "Off day" : day.completed ? "Done" : "Missed"}`}
+                title={`${day.dateStr} - ${!day.scheduled ? "Off day" : day.completed ? "Done" : "Missed"}`}
                 className={cn(
                   "aspect-square rounded-md flex items-center justify-center text-xs",
                   !day.scheduled
@@ -130,7 +124,7 @@ export default function HabitDetailPage() {
                     : "bg-muted text-muted-foreground"
                 )}
               >
-                {format(day.date, "d")}
+                {Number(day.dateStr.slice(8))}
               </div>
             ))}
           </div>

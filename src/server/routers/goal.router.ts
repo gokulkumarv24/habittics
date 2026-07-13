@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 
 export const goalRouter = createTRPCRouter({
@@ -18,6 +19,7 @@ export const goalRouter = createTRPCRouter({
         },
         include: {
           category: true,
+          linkedHabit: { select: { id: true, title: true, icon: true, color: true } },
           actions: { orderBy: { order: "asc" } },
           childGoals: {
             include: { actions: true },
@@ -34,6 +36,7 @@ export const goalRouter = createTRPCRouter({
         where: { id: input.id, userId: ctx.session.user.id! },
         include: {
           category: true,
+          linkedHabit: { select: { id: true, title: true, icon: true, color: true } },
           actions: { orderBy: { order: "asc" } },
           parentGoal: true,
           childGoals: {
@@ -46,7 +49,7 @@ export const goalRouter = createTRPCRouter({
           },
         },
       });
-      if (!goal) throw new Error("Goal not found");
+      if (!goal) throw new TRPCError({ code: "NOT_FOUND", message: "Goal not found" });
       return goal;
     }),
 
@@ -63,6 +66,7 @@ export const goalRouter = createTRPCRouter({
         color: z.string().default("#8b5cf6"),
         categoryId: z.string().optional(),
         parentGoalId: z.string().optional(),
+        linkedHabitId: z.string().optional(),
         actions: z
           .array(z.object({ title: z.string(), dueDate: z.date().optional() }))
           .optional(),
@@ -70,7 +74,18 @@ export const goalRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       if (input.endDate <= input.startDate) {
-        throw new Error("End date must be after start date");
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "End date must be after start date",
+        });
+      }
+
+      // A linked habit must belong to the same user
+      if (input.linkedHabitId) {
+        const habit = await ctx.db.habit.findFirst({
+          where: { id: input.linkedHabitId, userId: ctx.session.user.id! },
+        });
+        if (!habit) throw new TRPCError({ code: "NOT_FOUND", message: "Linked habit not found" });
       }
 
       const { actions, ...goalData } = input;
@@ -105,6 +120,7 @@ export const goalRouter = createTRPCRouter({
         currentValue: z.number().optional(),
         color: z.string().optional(),
         categoryId: z.string().nullable().optional(),
+        linkedHabitId: z.string().nullable().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -132,10 +148,18 @@ export const goalRouter = createTRPCRouter({
       });
 
       // Auto-complete if target reached
-      if (goal.targetValue && goal.currentValue >= goal.targetValue) {
+      if (goal.targetValue && goal.currentValue >= goal.targetValue && goal.status !== "COMPLETED") {
         await ctx.db.goal.update({
           where: { id: input.id },
           data: { status: "COMPLETED" },
+        });
+        await ctx.db.notification.create({
+          data: {
+            userId: ctx.session.user.id!,
+            type: "GOAL_COMPLETED",
+            title: "Goal completed!",
+            message: `"${goal.title}" reached its target of ${goal.targetValue}${goal.unit ? ` ${goal.unit}` : ""}.`,
+          },
         });
       }
 
@@ -157,7 +181,7 @@ export const goalRouter = createTRPCRouter({
       const goal = await ctx.db.goal.findFirst({
         where: { id: input.goalId, userId: ctx.session.user.id! },
       });
-      if (!goal) throw new Error("Goal not found");
+      if (!goal) throw new TRPCError({ code: "NOT_FOUND", message: "Goal not found" });
 
       const maxOrder = await ctx.db.goalAction.aggregate({
         where: { goalId: input.goalId },
@@ -176,7 +200,7 @@ export const goalRouter = createTRPCRouter({
         include: { goal: { select: { userId: true } } },
       });
       if (!action || action.goal.userId !== ctx.session.user.id) {
-        throw new Error("Action not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "Action not found" });
       }
 
       return ctx.db.goalAction.update({
@@ -196,7 +220,7 @@ export const goalRouter = createTRPCRouter({
         include: { goal: { select: { userId: true } } },
       });
       if (!action || action.goal.userId !== ctx.session.user.id) {
-        throw new Error("Action not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "Action not found" });
       }
 
       return ctx.db.goalAction.delete({ where: { id: input.actionId } });

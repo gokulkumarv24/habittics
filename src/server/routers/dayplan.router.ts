@@ -1,14 +1,17 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
-import { startOfDay } from "date-fns";
+import { DATE_KEY_REGEX, dateKeyToUtcDate, localDateKey } from "@/lib/dates";
+
+const dateKeySchema = z.string().regex(DATE_KEY_REGEX, "Expected yyyy-MM-dd");
 
 export const dayPlanRouter = createTRPCRouter({
   // Get or create plan for a specific date
   getByDate: protectedProcedure
-    .input(z.object({ date: z.string() })) // ISO date string "2026-06-16"
+    .input(z.object({ date: dateKeySchema }))
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id!;
-      const date = startOfDay(new Date(input.date));
+      const date = dateKeyToUtcDate(input.date);
 
       let plan = await ctx.db.dayPlan.findUnique({
         where: { userId_date: { userId, date } },
@@ -27,10 +30,10 @@ export const dayPlanRouter = createTRPCRouter({
 
   // Update day note/intention
   updateNote: protectedProcedure
-    .input(z.object({ date: z.string(), note: z.string().max(500) }))
+    .input(z.object({ date: dateKeySchema, note: z.string().max(500) }))
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id!;
-      const date = startOfDay(new Date(input.date));
+      const date = dateKeyToUtcDate(input.date);
 
       return ctx.db.dayPlan.upsert({
         where: { userId_date: { userId, date } },
@@ -43,7 +46,7 @@ export const dayPlanRouter = createTRPCRouter({
   addItem: protectedProcedure
     .input(
       z.object({
-        date: z.string(),
+        date: dateKeySchema,
         title: z.string().min(1).max(200),
         description: z.string().max(500).optional(),
         startTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
@@ -54,7 +57,7 @@ export const dayPlanRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id!;
-      const date = startOfDay(new Date(input.date));
+      const date = dateKeyToUtcDate(input.date);
 
       // Ensure day plan exists
       const plan = await ctx.db.dayPlan.upsert({
@@ -91,7 +94,7 @@ export const dayPlanRouter = createTRPCRouter({
         include: { dayPlan: true },
       });
       if (!item || item.dayPlan.userId !== ctx.session.user.id) {
-        throw new Error("Item not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "Item not found" });
       }
 
       return ctx.db.dayPlanItem.update({
@@ -123,7 +126,7 @@ export const dayPlanRouter = createTRPCRouter({
         include: { dayPlan: true },
       });
       if (!item || item.dayPlan.userId !== ctx.session.user.id) {
-        throw new Error("Item not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "Item not found" });
       }
 
       return ctx.db.dayPlanItem.update({ where: { id: itemId }, data });
@@ -138,7 +141,7 @@ export const dayPlanRouter = createTRPCRouter({
         include: { dayPlan: true },
       });
       if (!item || item.dayPlan.userId !== ctx.session.user.id) {
-        throw new Error("Item not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "Item not found" });
       }
 
       return ctx.db.dayPlanItem.delete({ where: { id: input.itemId } });
@@ -146,12 +149,17 @@ export const dayPlanRouter = createTRPCRouter({
 
   // Get upcoming days with plans (for calendar preview)
   getUpcoming: protectedProcedure
-    .input(z.object({ days: z.number().min(1).max(30).default(7) }))
+    .input(
+      z.object({
+        days: z.number().min(1).max(30).default(7),
+        dateKey: dateKeySchema.optional(),
+      })
+    )
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id!;
-      const today = startOfDay(new Date());
+      const today = dateKeyToUtcDate(input.dateKey ?? localDateKey());
       const endDate = new Date(today);
-      endDate.setDate(endDate.getDate() + input.days);
+      endDate.setUTCDate(endDate.getUTCDate() + input.days);
 
       return ctx.db.dayPlan.findMany({
         where: {

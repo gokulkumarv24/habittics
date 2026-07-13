@@ -20,7 +20,10 @@ export default function PlannerPage() {
 
   const { data: plan } = trpc.dayPlan.getByDate.useQuery({ date: dateStr });
   const { data: habits } = trpc.habit.getAll.useQuery();
-  const { data: upcomingPlans } = trpc.dayPlan.getUpcoming.useQuery({ days: 30 });
+  const { data: upcomingPlans } = trpc.dayPlan.getUpcoming.useQuery({
+    days: 30,
+    dateKey: format(new Date(), "yyyy-MM-dd"),
+  });
   const utils = trpc.useUtils();
 
   const updateNote = trpc.dayPlan.updateNote.useMutation({
@@ -60,7 +63,8 @@ export default function PlannerPage() {
     const set = new Set<string>();
     upcomingPlans?.forEach((p) => {
       if (p.items.length > 0) {
-        set.add(format(new Date(p.date), "yyyy-MM-dd"));
+        // Stored dates are UTC midnight of the calendar date
+        set.add(new Date(p.date).toISOString().slice(0, 10));
       }
     });
     return set;

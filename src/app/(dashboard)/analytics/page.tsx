@@ -4,16 +4,18 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { Sprout } from "lucide-react";
-import { subDays } from "date-fns";
+import { Sprout, Lightbulb, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { localDateKey, addDaysToKey } from "@/lib/dates";
 
 export default function AnalyticsPage() {
-  const { data: weeklyStats } = trpc.analytics.getWeeklyStats.useQuery();
-  const { data: dailyStats } = trpc.analytics.getDailyStats.useQuery();
+  const todayKey = localDateKey();
+  const { data: weeklyStats } = trpc.analytics.getWeeklyStats.useQuery({ dateKey: todayKey });
+  const { data: dailyStats } = trpc.analytics.getDailyStats.useQuery({ dateKey: todayKey });
   const { data: completionRate } = trpc.analytics.getCompletionRate.useQuery({
-    startDate: subDays(new Date(), 30),
-    endDate: new Date(),
+    startKey: addDaysToKey(todayKey, -29),
+    endKey: todayKey,
   });
+  const { data: insights } = trpc.analytics.getInsights.useQuery({ dateKey: todayKey });
   const { data: categories } = trpc.category.getAll.useQuery();
 
   return (
@@ -107,6 +109,67 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Insights */}
+      <Card className="card-lift">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Lightbulb className="w-5 h-5 text-amber-500" />
+            Insights
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {insights && (insights.bestDay || insights.weekTrend || insights.habitInsights.length > 0) ? (
+            <div className="space-y-3">
+              {insights.weekTrend && (
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                  {insights.weekTrend.delta > 0 ? (
+                    <TrendingUp className="w-5 h-5 text-emerald-500 shrink-0" />
+                  ) : insights.weekTrend.delta < 0 ? (
+                    <TrendingDown className="w-5 h-5 text-red-500 shrink-0" />
+                  ) : (
+                    <Minus className="w-5 h-5 text-muted-foreground shrink-0" />
+                  )}
+                  <p className="text-sm">
+                    This week you&apos;re at <strong>{insights.weekTrend.thisWeek}%</strong> completion —{" "}
+                    {insights.weekTrend.delta === 0
+                      ? "the same as last week."
+                      : `${Math.abs(insights.weekTrend.delta)} points ${
+                          insights.weekTrend.delta > 0 ? "better" : "lower"
+                        } than last week (${insights.weekTrend.lastWeek}%).`}
+                  </p>
+                </div>
+              )}
+              {insights.bestDay && insights.worstDay && insights.bestDay.day !== insights.worstDay.day && (
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                  <Sprout className="w-5 h-5 text-emerald-500 shrink-0" />
+                  <p className="text-sm">
+                    Your strongest day is <strong>{insights.bestDay.day}</strong> ({insights.bestDay.rate}
+                    %); your toughest is <strong>{insights.worstDay.day}</strong> ({insights.worstDay.rate}
+                    %). Consider lighter goals on {insights.worstDay.day}s.
+                  </p>
+                </div>
+              )}
+              {insights.habitInsights.map((hi) => (
+                <div key={hi.habitId} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                  <Lightbulb className="w-5 h-5 text-amber-500 shrink-0" />
+                  <p className="text-sm">
+                    <strong>{hi.title}</strong> holds up at {hi.weekdayRate}% on weekdays but{" "}
+                    {hi.weekendRate}% on weekends
+                    {hi.weekendRate < hi.weekdayRate
+                      ? " — weekends are the weak spot."
+                      : " — weekdays are the weak spot."}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              Track habits for a couple of weeks to unlock insights.
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Top Streaks */}
       <Card className="card-lift">
