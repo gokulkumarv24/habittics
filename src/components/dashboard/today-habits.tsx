@@ -3,6 +3,7 @@
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Droplet } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Plant, getGrowthLabel } from "@/components/garden/plant";
 import { useState, useRef, useCallback, useMemo } from "react";
@@ -165,6 +166,14 @@ export function TodayHabits() {
       utils.analytics.invalidate();
       utils.goal.getAll.invalidate();
       utils.notification.invalidate();
+    },
+    onError: (error) => {
+      toast.error("Couldn't water this habit", {
+        description:
+          error.data?.code === "BAD_REQUEST"
+            ? "The app was updated — refresh the page (Ctrl+Shift+R) and try again."
+            : error.message,
+      });
     },
   });
 

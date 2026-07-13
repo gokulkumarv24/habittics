@@ -8,6 +8,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Plant, getGrowthLabel } from "@/components/garden/plant";
 import { localDateKey } from "@/lib/dates";
+import { toast } from "sonner";
 
 export default function HabitsPage() {
   const { data: habits, isLoading } = trpc.habit.getAll.useQuery({ dateKey: localDateKey() });
@@ -19,6 +20,14 @@ export default function HabitsPage() {
       utils.analytics.invalidate();
       utils.goal.getAll.invalidate();
       utils.notification.invalidate();
+    },
+    onError: (error) => {
+      toast.error("Couldn't water this habit", {
+        description:
+          error.data?.code === "BAD_REQUEST"
+            ? "The app was updated — refresh the page (Ctrl+Shift+R) and try again."
+            : error.message,
+      });
     },
   });
 
